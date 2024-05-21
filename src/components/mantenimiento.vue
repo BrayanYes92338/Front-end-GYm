@@ -184,7 +184,7 @@ function filterFn(val, update, abort) {
     update(() => {
         const needle = val.toLowerCase();
         options.value = maquinas.filter(v => v.label.toLowerCase().indexOf(needle) > -1);
-    });////////////
+    });
 };
 
 
@@ -241,9 +241,7 @@ function limpiar() {
 
 
 async function agregarMantenimientos() {
-  
 
-   
     const r = await useMantenimiento.postMantenimiento({
         idMaquina: idMaquina.value.value,
         descripcion: descripcion.value,
@@ -257,13 +255,13 @@ async function agregarMantenimientos() {
 }
 
 function traerMantenimiento(mantenimiento) {
-    id.value = mantenimiento._id
-    idMaquina.value = mantenimiento.idMaquina
-    descripcion.value = mantenimiento.descripcion
-    responsable.value = mantenimiento.responsable
-    precio.value = mantenimiento.precio
     accion.value = 2
     alert.value = true
+idMaquina.value = mantenimiento.idMaquina;
+id.value = mantenimiento._id;
+    descripcion.value = mantenimiento.descripcion;
+    responsable.value = mantenimiento.responsable;
+    precio.value = mantenimiento.precio;
 }
 
 function validarEdicionMantenimiento() {
