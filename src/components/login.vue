@@ -43,10 +43,6 @@ const router = useRouter();
 let useUsuario = useUsuarioStore()
 let email = ref("");
 let passwordLogin = ref("")
-const datoslogin = ref([]);
-let nombre = ref('');
-let correo = ref('');
-let password = ref('');
 
 
 
@@ -57,6 +53,7 @@ async function login2() {
             password: passwordLogin.value
         })
         useUsuario.token = res.data.token;
+        useUsuario.user=res.data.usuario
         console.log(res);
 
         router.push('/home');
@@ -65,15 +62,15 @@ async function login2() {
     }
 }
 
-async function registroLogin() {
-    const rlogin = {
-        nombre: nombre.value,
-        correo: correo.value,
-        password: password.value
-    }
-    datoslogin.value.push(rlogin);
-    console.log(datoslogin.value);
-}
+// async function registroLogin() {
+//     const rlogin = {
+//         nombre: nombre.value,
+//         correo: correo.value,
+//         password: password.value
+//     }
+//     datoslogin.value.push(rlogin);
+//     console.log(datoslogin.value);
+// }
 
 
 

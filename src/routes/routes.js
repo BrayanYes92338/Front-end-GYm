@@ -1,4 +1,4 @@
-import {createRouter, createWebHashHistory} from "vue-router"
+import { createRouter, createWebHashHistory } from "vue-router"
 import Login from '../components/login.vue'
 import Usuario from "../components/usuarios.vue"
 import Home from '../components/home.vue'
@@ -11,26 +11,55 @@ import Planes from '../components/planes.vue'
 import Productos from '../components/productos.vue'
 import Ventas from '../components/ventas.vue'
 import Pagos from '../components/pagos.vue'
+import { useUsuarioStore } from '../stores/usuarios';
+
+
+const auth = (to, from, next) => {
+    if (checkAuth()) {
+        const userUsuario = useUsuarioStore()
+        const rol = userUsuario.user.rol
+        console.log(rol);
+        if (!to.meta.rol.includes(rol)) {
+            return next({ name: 'login' })
+        }
+        next()
+    } else {
+        return next({ name: 'login' })
+    }
+}
+
+const checkAuth = () => {
+    const useUsuario = useUsuarioStore()
+    const token = useUsuario.token
+    console.log(token);
+    if (!token) return false
+    return true
+};
 
 const routes = [
 
-    { path: "/", component: Login },
-    { path: "/home", component: Home },
-    { path: "/sede", component: Sede },
-    { path: "/clientes", component: clientes },
-    { path: "/maquina", component: Maquina },
-    { path: "/mantenimiento", component: Mantenimiento },
-    {path: "/ingresos", component:Ingresos },
-    {path: "/planes", component:Planes },
-    {path: "/productos", component:Productos },
-    {path: "/ventas", component:Ventas },
-    {path: "/pagos", component:Pagos },
-    { path: "/usuario", component: Usuario }
+    {
+        path: "/",name:"login", component: Login
+    },
+            {
+        path: "/home", component: Home, children: [
+            { path: "/sede", component: Sede, beforeEnter: auth, meta: { rol: ['ADMIN'] } },
+            { path: "/clientes", component: clientes },
+            { path: "/maquina", component: Maquina },
+            { path: "/mantenimiento", component: Mantenimiento },
+            { path: "/ingresos", component: Ingresos },
+            { path: "/planes", component: Planes },
+            { path: "/productos", component: Productos },
+            { path: "/ventas", component: Ventas },
+            { path: "/pagos", component: Pagos },
+            { path: "/usuario", component: Usuario }
+        ]
+    },
 
-    
+
 ];
 
-export const  router = createRouter({
-    history:createWebHashHistory(),
+export const router = createRouter({
+    history: createWebHashHistory(),
     routes
 })
