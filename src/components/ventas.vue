@@ -56,7 +56,7 @@
 
                 <template v-slot:body-cell-roducto="props">
                     <q-td :props="props">
-                        <span>{{ props.row.idProducto._id }}</span>
+                        <span>{{ idProducto._id }}</span>
                     </q-td>
                 </template>
 

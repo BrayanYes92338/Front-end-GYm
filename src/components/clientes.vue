@@ -1,13 +1,10 @@
 <template>
-    <child-component>
-      <template v-slot:header>
-        <h1>Este es el encabezado</h1>
-      </template>
-  
-      <p>Este es el contenido principal.</p>
-  
-      <template v-slot:footer>
-        <p>Este es el pie de página</p>
-      </template>
-    </child-component>
+<div>
+  <div style="margin-left: 5%; text-align: end; margin-right: 5%">
+            <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Cliente</q-btn>
+        </div>
+</div>
   </template>
+
+  <script setup>
+</script>

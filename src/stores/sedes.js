@@ -50,7 +50,7 @@ export const useStoreSede = defineStore("sede", () =>{
     const putSede = async(id, data)=>{
         try {
             loading.value=true
-            const r = await axios.put(`api/sedes/${id}`,{}, data,{
+            const r = await axios.put(`api/sedes/${id}`, data,{
                 headers:{
                     token: useUsuario.token
                 }

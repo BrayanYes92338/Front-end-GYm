@@ -5,14 +5,14 @@
   <q-toolbar>
     <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
     <q-toolbar-title>
-      <p class="rol-user">Rol Usuario</p>
+      <p class="rol-user">hola</p>
     </q-toolbar-title>
   </q-toolbar>
 </q-header>
 
 <q-drawer v-model="leftDrawerOpen" side="left" overlay bordered class="side-bar scrolling-sidebar">
   <header class=header>
-    <img src="" alt="" class="perfil-prueba">
+    <img src="../img/user.jpg" alt="" class="perfil-prueba">
     <p class="name-user">Nombre Usuario</p>
   </header>
   <div class="menu">
@@ -105,11 +105,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import '../style.css';
+import { ref, onMounted } from 'vue'
 import { useUsuarioStore } from '../stores/usuarios';
 
 let useUsuario = useUsuarioStore()
+
+
 
 
 const leftDrawerOpen = ref(false)
@@ -128,4 +129,113 @@ const toggleSubMenu = (menu) => {
   subMenus.value[menu] = !subMenus.value[menu]
 }
 
+
 </script>
+
+<style scoped>
+.colorheader{
+  background-color: #a1312d !important;
+}
+
+.colorfooter{
+  background-color: #211F25 !important;
+}
+
+.titulo-footer{
+  font-size: 15px;
+  text-align: right;
+}
+
+.side-bar{
+  position: relative;
+ 
+}
+
+.rol-user{
+  margin-top: 15px;
+}
+
+.header{
+ background: #33363a; 
+ width: 100%;
+ height: 190px;
+}
+
+header img{
+  width: 100%;
+  margin: 15px;
+  margin-left: 110px;
+  border-radius: 50%;
+}
+
+.perfil-prueba{
+  height: 100px;
+  width: 100px;
+}
+
+.menu{
+  width: 100%;
+  margin-top: 20px;
+}
+
+.menu .item{
+  position: relative;
+  cursor: pointer;
+
+}
+
+.menu .item .opciones {
+  color: #211F25;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  display: block;
+  padding: 4px 15px;
+  line-height: 60px;
+}
+
+.item i{
+  margin-right: 8px;
+}
+
+.item a .dropdown{
+  position: absolute;
+  right: 0;
+  margin: 20px;
+  transition: 0.3 ease;
+}
+
+.item .sub-menu{
+  background: #F0F0F0;
+}
+
+
+
+.name-user{
+  color: white;
+  font-size: 15px;
+  text-align: center;
+  font-weight: bold;
+margin-left: 34px;
+}
+
+.btn-cerrar{
+margin-top: 160px;
+text-align: center;
+}
+
+.cerrar-sesion {
+  color: white;
+  border: none;
+  background: #DC0000;
+  width: 250px;
+  height: 50px;
+  font-size: 15px;
+  font-weight: bold;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+</style>
