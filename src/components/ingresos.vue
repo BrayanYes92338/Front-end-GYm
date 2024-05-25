@@ -149,7 +149,9 @@ function filterFn(val,update,abort){
     })
 }
 
-async function listarIngresos()
+async function listarIngresos(){
+    
+}
 
 function limpiar(){
     idsede.value = ''
