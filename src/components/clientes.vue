@@ -11,8 +11,7 @@
               {{ accion == 1 ? "Agregar Cliente" : "Editar Cliente" }}
             </div>
           </q-card-section>
-          <q-input outlined v-model="nombre" label="Ingrese el nombre del Cliente" class="q-my-md q-mx-md"
-            type="text" />
+          <q-input outlined v-model="nombre" label="Ingrese el nombre del Cliente" class="q-my-md q-mx-md" type="text" />
           <q-input outlined v-model="fechaNacimiento" label="Ingrese el Cumple del Cliente" class="q-my-md q-mx-md"
             type="date" />
           <q-input outlined v-model="edad" label="Ingrese la edad del Cliente" class="q-my-md q-mx-md" type="tel" />
@@ -21,7 +20,7 @@
             label="Seleccione Tipo Documento" class="q-my-md q-mx-md" />
           <q-input outlined v-model="direccion" label="Ingrese la direccion del Cliente" class="q-my-md q-mx-md"
             type="text" />
-            <q-input outlined v-model=" telefono" label="Ingrese el Telefono del Cliente" class="q-my-md q-mx-md"
+          <q-input outlined v-model="telefono" label="Ingrese el Telefono del Cliente" class="q-my-md q-mx-md"
             type="tel" />
           <q-select outlined v-model="idPlan" use-input hide-selected fill-input input-debounce="0"
             class="q-my-md q-mx-md" :options="options" @filter="filterFn" label="Seleccione un Plan">
@@ -33,14 +32,19 @@
               </q-item>
             </template>
           </q-select>
+          <q-input outlined v-model="foto" label="Ingrese la foto del Cliente" class="q-my-md q-mx-md" type="text" />
+          <q-input outlined v-model="objetivo" label="Ingrese el objetivo del Cliente" class="q-my-md q-mx-md"
+            type="text" />
+          <q-input outlined v-model="observaciones" label="Ingrese las observacionesdel Cliente" class="q-my-md q-mx-md"
+            type="text" />
           <q-card-actions align="right">
-            <q-btn v-if="accion === 1" @click="validar()" color="red" class="text-white"
+            <q-btn v-if="accion === 1" @click="validarCliente()" color="red" class="text-white"
               :loading="useCliente.loading">Agregar
               <template v-slot:loading>
                 <q-spinner color="primary" size="1em" />
               </template>
             </q-btn>
-            <q-btn v-if="accion !== 1" @click="validaredicion()" color="red" class="text-white"
+            <q-btn v-if="accion !== 1" @click="validarEdicionCliente()" color="red" class="text-white"
               :loading="useCliente.loading">
               Editar
               <template v-slot:loading>
@@ -65,9 +69,13 @@
         </template>
         <template v-slot:body-cell-opciones="props">
           <q-td :props="props">
-            <q-btn @click="traerInfo(props.row)">✏️</q-btn>
-            <q-btn v-if="props.row.estado == 1" @click="desabilitarSedes(props.row)">❌</q-btn>
-            <q-btn v-else @click="habilitarSedes(props.row)">✅</q-btn>
+            <div style="display: flex; gap:15px; justify-content: center;">
+              <!-- boton de editar -->
+              <q-btn color="primary" @click="traerCliente(props.row)" ><i class="fas fa-pencil-alt"></i></q-btn>
+              <!-- botons de activado y desactivado -->
+              <q-btn v-if="props.row.estado == 1" @click="deshabilitarCliente(props.row)"  color="negative"><i class="fas fa-times"></i></q-btn>
+              <q-btn v-else color="positive" @click="habilitarCliente(props.row)" ><i class="fas fa-check"></i></q-btn>
+            </div>
           </q-td>
         </template>
       </q-table>
@@ -88,7 +96,6 @@ let id = ref('')
 let nombre = ref("")
 let fechaNacimiento = ref("")
 let edad = ref("")
-let fechaIngreso = ref("")
 let documento = ref("")
 let direccion = ref("")
 let telefono = ref("")
@@ -131,6 +138,10 @@ const columns = ref([
     align: 'center',
     field: 'fechaNacimiento',
     sortable: true,
+    format: (val) => {
+      const fechaIngreso = new Date(val)
+      return fechaIngreso.toLocaleDateString()
+    }
   },
   {
     name: 'edad',
@@ -181,11 +192,11 @@ const columns = ref([
     sortable: true,
   },
   {
-    name: ' idPlan',
+    name: 'idPlan',
     required: true,
     label: 'ID Plan',
     align: 'center',
-    field: ' idPlan',
+    field: 'idPlan',
     sortable: true,
   },
   {
@@ -223,7 +234,7 @@ const columns = ref([
   {
     name: 'fechaVencimiento',
     required: true,
-    label: 'Fehca de Vencimiento',
+    label: 'Fecha de Vencimiento',
     align: 'center',
     field: 'fechaVencimiento',
     sortable: true,
@@ -253,9 +264,9 @@ const columns = ref([
 ])
 
 async function listarClientes() {
- const r = await useCliente.listarClientes()
- rows.value = r.data.clientes.reverse()
- console.log(r.data.clientes);
+  const r = await useCliente.listarClientes()
+  rows.value = r.data.clientes.reverse()
+  console.log(r.data.clientes);
 }
 
 let planes = [];
@@ -270,17 +281,219 @@ function filterFn(val, update, abort) {
 }
 
 async function listarPlanes() {
- const data = await usePlan.listarPlanes()
- data.data.planes.forEach(item =>{
-  dates ={
-    label: item.codigo,
-    value: item._id
-  }
-  planes.push(dates)
- })
- console.log(planes);
+  const data = await usePlan.listarPlanes()
+  data.data.planes.forEach(item => {
+    dates = {
+      label: item.codigo,
+      value: item._id
+    }
+    planes.push(dates)
+  })
+  console.log(planes);
 }
 
+function validarCliente() {
+  let validacionnumeros = /^[0-9]+$/;
+
+  if (nombre.value == "") {
+    Notify.create("Se debe agregar un nombre del Cliente");
+
+  } else if (fechaNacimiento.value == "") {
+    Notify.create("Se debe agregar la fecha de nacimiento del Cliente");
+
+  } else if (edad.value == "") {
+    Notify.create("Se debe agregar la edad del Cliente");
+
+  } else if (!validacionnumeros.test(edad.value)) {
+    Notify.create("La edad debe ser un numero");
+
+  } else if (documento.value == "") {
+    Notify.create("Se debe agregar el documento del Cliente");
+
+  } else if (direccion.value == "") {
+    Notify.create("Se debe agregar la direccion del Cliente");
+
+  } else if (telefono.value == "") {
+    Notify.create("Se debe agregar el telefono del Cliente");
+
+  } else if (!validacionnumeros.test(telefono.value)) {
+    Notify.create("El telefono debe ser un numero");
+
+  } else if (idPlan.value == "") {
+    Notify.create("Se debe agregar el plan del Cliente");
+
+  } else if (foto.value == "") {
+    Notify.create("Se debe agregar la foto del Cliente");
+
+  } else if (objetivo.value == "") {
+    Notify.create("Se debe agregar el objetivo del Cliente");
+
+  } else if (observaciones.value == "") {
+    Notify.create("Se debe agregar las observaciones del Cliente");
+
+  } else {
+    agregarCliente()
+    limpiar()
+    Notify.create({
+      type: "positive",
+      message: "Cliente agregado exitosamente",
+    });
+  }
+
+}
+
+async function agregarCliente() {
+  const r = await useCliente.postClientes({
+    nombre: nombre.value,
+    fechaNacimiento: fechaNacimiento.value,
+    edad: edad.value,
+    documento: documento.value,
+    direccion: direccion.value,
+    telefono: telefono.value,
+    idPlan: idPlan.value.value,
+    foto: foto.value,
+    objetivo: objetivo.value,
+    observaciones: observaciones.value
+
+  })
+  listarClientes()
+  cerrar()
+  console.log(r);
+
+}
+
+async function habilitarCliente(cliente) {
+  const res = await useCliente.putactivarCliente(cliente._id)
+    .then((response) => {
+      listarClientes()
+      console.log(response);
+    })
+
+    .catch((error) => {
+      console.log('Error de Cliente', error);
+      Notify.create("Ocurrio un error al verificar el Cliente")
+    })
+
+}
+
+async function deshabilitarCliente(cliente) {
+  const res = await useCliente.putdesactivarCliente(cliente._id)
+    .then((response) => {
+      listarClientes()
+      console.log(response);
+    })
+
+    .catch((error) => {
+      console.log('Error de Cliente', error);
+      Notify.create("Ocurrio un error al verificar el Cliente")
+    })
+
+}
+
+function traerCliente(cliente){
+  accion.value = 2
+  alert.value = true;
+  id.value = cliente._id
+  nombre.value = cliente.nombre
+  fechaNacimiento.value = cliente.fechaNacimiento
+  edad.value = cliente.edad
+  documento.value = cliente.documento
+  direccion.value = cliente.direccion
+  telefono.value = cliente.telefono
+  idPlan.value = cliente.idPlan
+  foto.value = cliente.foto
+  objetivo.value = cliente.objetivo
+  observaciones.value = cliente.observaciones
+
+}
+
+function validarEdicionCliente() {
+  let validacionnumeros = /^[0-9]+$/;
+
+  if (nombre.value == "") {
+    Notify.create("Se debe agregar un nombre del Cliente");
+
+  } else if (fechaNacimiento.value == "") {
+    Notify.create("Se debe agregar la fecha de nacimiento del Cliente");
+
+  } else if (edad.value == "") {
+    Notify.create("Se debe agregar la edad del Cliente");
+
+  } else if (!validacionnumeros.test(edad.value)) {
+    Notify.create("La edad debe ser un numero");
+
+  } else if (documento.value == "") {
+    Notify.create("Se debe agregar el documento del Cliente");
+
+  } else if (direccion.value == "") {
+    Notify.create("Se debe agregar la direccion del Cliente");
+
+  } else if (telefono.value == "") {
+    Notify.create("Se debe agregar el telefono del Cliente");
+
+  } else if (!validacionnumeros.test(telefono.value)) {
+    Notify.create("El telefono debe ser un numero");
+
+  } else if (idPlan.value == "") {
+    Notify.create("Se debe agregar el plan del Cliente");
+
+  } else if (foto.value == "") {
+    Notify.create("Se debe agregar la foto del Cliente");
+
+  } else if (objetivo.value == "") {
+    Notify.create("Se debe agregar el objetivo del Cliente");
+
+  } else if (observaciones.value == "") {
+    Notify.create("Se debe agregar las observaciones del Cliente");
+
+  } else {
+    editarcliente()
+    limpiar()
+    cerrar()
+    Notify.create({
+      type: "positive",
+      message: "Cliente agregado exitosamente",
+    });
+  }
+
+}
+
+
+async function editarcliente(){
+  try{
+    await useCliente.putCliente(id.value,{
+      nombre: nombre.value,
+      fechaNacimiento: fechaNacimiento.value,
+      edad: edad.value,
+      documento: documento.value,
+      direccion: direccion.value,
+      telefono: telefono.value,
+      idPlan: idPlan.value.value,
+      foto: foto.value,
+      objetivo: objetivo.value,
+      observaciones: observaciones.value
+    })
+    listarClientes()
+
+  }catch (error){
+    console.error('Error de cliente', error)
+        Notify.create('Ocurrio un error al editar el cliente')
+  }
+}
+
+
+function limpiar() {
+  nombre.value = ""
+  fechaNacimiento.value = ""
+  edad.value = ""
+  documento.value = ""
+  direccion.value = ""
+  telefono.value = ""
+  idPlan.value = ""
+  foto.value = ""
+  objetivo.value = ""
+  observaciones.value = ""
+}
 
 onMounted(() => {
   listarClientes()

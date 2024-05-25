@@ -314,7 +314,7 @@ async function habilitarMantenimiento(mantenimiento) {
         })
         .catch((error) => {
             console.log('Error de Mantenimiento', error);
-            Notify.create("Ocurrio un eror al verificar el mantenimiento")
+            Notify.create("Ocurrio un error al verificar el mantenimiento")
         })
 }
 
@@ -326,7 +326,7 @@ async function deshabilitarMantenimiento(mantenimiento) {
         })
         .catch((error) => {
             console.log('Error de Mantenimiento', error);
-            Notify.create("Ocurrio un eror al verificar el mantenimiento")
+            Notify.create("Ocurrio un error al verificar el mantenimiento")
         })
 }
 

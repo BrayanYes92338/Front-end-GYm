@@ -12,7 +12,7 @@ export const useStoreCliente = defineStore('cliente', ()=>{
     const listarClientes = async ()=>{
         try{
             loading.value = true;
-            const response =axios.get("api/usuarios",{
+            const response =axios.get("api/clientes",{
                 headers:{
                     token:useUsuario.token
                 }
@@ -105,4 +105,6 @@ export const useStoreCliente = defineStore('cliente', ()=>{
 
     return{listarClientes,postClientes,putCliente,putactivarCliente,putdesactivarCliente, loading, clientes}
 
+},{
+    persist:true,
 })
