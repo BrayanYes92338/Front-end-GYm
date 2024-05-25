@@ -20,12 +20,89 @@ export const useStoreCliente = defineStore('cliente', ()=>{
             clientes.value = response.data;
             return response;
         }catch(error){
+            console.error('Error al obtener la lista la lista de Clientes', error);
+            throw error;
+        }finally{
+            loading.value= false;
+        }
+    };
+    const postClientes = async (data) =>{
+        try{
+            loading.value= true
+            const r = await axios.post("api/clientes", data,{
+                headers:{
+                    token: useUsuario.token
+                }
+            })
+        return r
+        }catch(error){
+            loading.value = true
+            console.log(error);
 
         }finally{
+            loading.value = false
 
         }
     }
+    const putCliente = async(id, data)=>{
+        try{
+            loading.value = true;
+            const r = await axios.put(`api/clientes/${id}`, data,{
+                headers:{
+                    token: useUsuario.token
+                }
+            })
+            return r
+        }catch (error){
+            loading.value = true;
+            console.log(error);
 
-    return{}
+        }finally{   
+            loading.value = false
+        }
+    }
+    const putactivarCliente = async (id)=>{
+        try{
+            loading.value = true
+            const r = await axios.put(`api/clientes/activar/${id}`,{},{
+                headers:{
+                    token: useUsuario.token
+                }
+            })
+            return r
+        }catch (error){
+            loading.value = true
+            console.log(error);
+            Notify.create({
+                type: "negative",
+                message:error.response.data.errors[0].msg,
+            })
+
+        }finally{
+            loading.value = false
+        }
+    }
+    const putdesactivarCliente = async (id)=>{
+        try{
+            loading.value = true
+            const r = await axios.put(`api/clientes/desactivar/${id}`,{},{
+                headers:{
+                    token: useUsuario.token
+                }
+            })
+            return r
+        }catch (error){
+            loading.value=true
+            console.log(error);
+            Notify.create({
+                type: "negative",
+                message: error.response.data.errors[0].msg,
+            });
+        }finally{
+            loading.value=false
+        }
+    }
+
+    return{listarClientes,postClientes,putCliente,putactivarCliente,putdesactivarCliente, loading, clientes}
 
 })
