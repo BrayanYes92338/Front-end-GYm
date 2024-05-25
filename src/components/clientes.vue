@@ -15,9 +15,8 @@
           <q-input outlined v-model="fechaNacimiento" label="Ingrese el Cumple del Cliente" class="q-my-md q-mx-md"
             type="date" />
           <q-input outlined v-model="edad" label="Ingrese la edad del Cliente" class="q-my-md q-mx-md" type="tel" />
-          <q-select outlined v-model="documento"
-            :options="['Tarjeta Identidad', 'Cedula Ciudadania', 'Cédula Extranjera', ' Permiso por Protección Temporal']"
-            label="Seleccione Tipo Documento" class="q-my-md q-mx-md" />
+          <q-input outlined v-model="documento" label="Ingrese el Documento del Cliente" class="q-my-md q-mx-md"
+            type="tel" />
           <q-input outlined v-model="direccion" label="Ingrese la direccion del Cliente" class="q-my-md q-mx-md"
             type="text" />
           <q-input outlined v-model="telefono" label="Ingrese el Telefono del Cliente" class="q-my-md q-mx-md"
@@ -310,7 +309,9 @@ function validarCliente() {
   } else if (documento.value == "") {
     Notify.create("Se debe agregar el documento del Cliente");
 
-  } else if (direccion.value == "") {
+  }else if(!validacionnumeros.test(documento.value)){
+    Notify.create("El documento debe ser un numero");
+  }  else if (direccion.value == "") {
     Notify.create("Se debe agregar la direccion del Cliente");
 
   } else if (telefono.value == "") {
@@ -425,6 +426,8 @@ function validarEdicionCliente() {
   } else if (documento.value == "") {
     Notify.create("Se debe agregar el documento del Cliente");
 
+  }else if(!validacionnumeros.test(documento.value)){
+    Notify.create("El documento debe ser un numero");
   } else if (direccion.value == "") {
     Notify.create("Se debe agregar la direccion del Cliente");
 

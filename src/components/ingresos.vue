@@ -150,7 +150,7 @@ function filterFn(val,update,abort){
 }
 
 async function listarIngresos(){
-    
+
 }
 
 function limpiar(){
@@ -160,4 +160,7 @@ function limpiar(){
 }
 
 
+onMounted(() => {
+    listarIngresos()
+})
 </script>
