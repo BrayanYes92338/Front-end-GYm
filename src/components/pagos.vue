@@ -63,9 +63,16 @@
                 </template>
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props">
-                        <q-btn>✏️</q-btn>
-                        <q-btn v-if="props.row.estado == 1">❌</q-btn>
-                        <q-btn v-else>✅</q-btn>
+                        <div style="display: flex; gap:15px; justify-content: center;">
+                            <!-- boton de editar -->
+                            <q-btn color="primary" @click="traerPlan(props.row)" ><i
+                                    class="fas fa-pencil-alt"></i></q-btn>
+                            <!-- botons de activado y desactivado -->
+                            <q-btn v-if="props.row.estado == 1"  @click=" deshabilitarPago(props.row)" color="negative"><i
+                                    class="fas fa-times"></i></q-btn>
+                            <q-btn v-else @click="habilitarPago(props.row)" color="positive"><i
+                                    class="fas fa-check"></i></q-btn>
+                        </div>
                     </q-td>
                 </template>
             </q-table>
@@ -140,9 +147,9 @@ const columns = ref([
         align: 'center',
         field: 'valor',
         sortable: true,
-        format: (val) => {
+        format: (valor) => {
             // Formatear el precio como pesos colombianos
-            return val.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+            return valor.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
         }
     },
     {
@@ -237,6 +244,43 @@ async function agregarpago() {
     cerrar()
     listarPagos()
     console.log(r)
+}
+
+async function habilitarPago(pago){
+    const res = await usePago.putActivarPago(pago._id)
+    .then((response)=>{
+        console.log(response)
+        listarPagos()
+    })
+
+    .catch((error)=>{
+        console.error(error)
+        Notify.create("Ocurrio un error al verificar el Pago intentalo nuevamente")
+
+    })
+
+}
+
+async function deshabilitarPago(pago){
+    const res = await usePago.putDesactivarPago(pago._id)
+    .then((response)=>{
+        console.log(response)
+        listarPagos()
+    })
+
+    .catch((error)=>{
+        console.error(error)
+        Notify.create("Ocurrio un error al verificar el Pago intentalo nuevamente")
+})
+}
+
+function traerPlan(plan){
+    accion.value = 2
+    alert.value = true
+    idCliente.value = plan.idCliente
+    idPlan.value = plan.idPlan
+    id.value = plan._id
+  
 }
 
 
