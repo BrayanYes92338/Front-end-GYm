@@ -35,10 +35,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
                     token: useUsuario.token
                 }
             });
-            Notify.create({
-                color: "positive",
-                message: "Ingreso registrado correctamente"
-            });
+
             return response;
         }catch(error){
             console.error("Error al registrar el ingreso", error);
@@ -56,10 +53,6 @@ export const useIngresoStore = defineStore("ingreso", () => {
                     token: useUsuario.token
                 }
             });
-            Notify.create({
-                color: "positive",
-                message: "Ingreso actualizado correctamente"
-            });
             return response;
         }catch(error){
             console.error("Error al actualizar el ingreso", error);
@@ -70,24 +63,25 @@ export const useIngresoStore = defineStore("ingreso", () => {
     }
 
     const putactivarIngreso = async (id)=>{
-        try{
-            loading.value = true;
-            const response = await axios.put(`api/ingresos/activar/${id}`,{},{
-                headers:{
-                    token: useUsuario.token
-                }
-            });
-            Notify.create({
-                color: "positive",
-                message: "Ingreso activado correctamente"
-            });
-            return response;
-        }catch(error){
-            console.error("Error al activar el ingreso", error);
-            throw error;
-        }finally{
-            loading.value = false;
-        }
+      try{
+        loading.value = true
+        const r = await axios.put(`api/ingresos/activar/${id}`,{},{
+            headers:{
+                token: useUsuario.token
+            }
+        })
+        return r
+      }catch (error){
+        loading.value = true
+        console.log(error);
+        Notify.create({
+            type: "negative",
+            message: error.response.data.errors[0].msg,
+        
+        })
+      }finally{
+        loading.value = false
+      }
     }
 
     const putdesactivarIngreso = async (id)=>{
@@ -98,10 +92,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
                     token: useUsuario.token
                 }
             });
-            Notify.create({
-                color: "positive",
-                message: "Ingreso desactivado correctamente"
-            });
+         
             return response;
         }catch(error){
             console.error("Error al desactivar el ingreso", error);
@@ -111,14 +102,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
         }
     }
 
-    return { 
-        loading,
-        ingresos,
-        listarIngresos,
-        postIngreso,
-        putIngreso,
-        putactivarIngreso,
-        putdesactivarIngreso};
+    return { listarIngresos,postIngreso,putIngreso, putactivarIngreso, putdesactivarIngreso,loading,ingresos,};
 },
 {
     persist:true,

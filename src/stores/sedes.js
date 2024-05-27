@@ -111,4 +111,6 @@ export const useStoreSede = defineStore("sede", () =>{
     return { postSede, putSede, putactivarSede, putdesactivarSede, loading, listarSedes, sedes}
     
 
+},{
+    persist:true,
 })

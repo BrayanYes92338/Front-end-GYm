@@ -102,7 +102,7 @@ function cerrar() {
 }
 
 const columns = ref([
-    {
+{
         name: 'roducto',
         required: true,
         label: 'ID Producto',

@@ -11,14 +11,36 @@
                             {{ accion == 1 ? "Agregar Ingreso" : "Editar Ingreso" }}
                         </div>
                     </q-card-section>
+                    <q-select outlined v-model="idsede" use-input hide-selected fill-input input-debounce="0"
+                        class="q-my-md q-mx-md" :options="options" @filter="filterFn" label="Selecciona una Sede">
+                        <template v-slot:no-option>
+                            <q-item>
+                                <q-item-section class="text-grey">
+                                    Sin resultados
+                                </q-item-section>
+                            </q-item>
+                        </template>
+                    </q-select>
 
+                    <q-select outlined v-model="idcliente" use-input hide-selected fill-input input-debounce="0"
+                        class="q-my-md q-mx-md" :options="opciones" @filter="filtarCliente" label="Selecciona un Documento">
+                        <template v-slot:no-option>
+                            <q-item>
+                                <q-item-section class="text-grey">
+                                    Sin resultados
+                                </q-item-section>
+                            </q-item>
+                        </template>
+                    </q-select>
                     <q-card-actions align="right">
-                        <q-btn v-if="accion === 1" color="red" class="text-white" :loading="useIngreso.loading">Agregar
+                        <q-btn v-if="accion === 1" @click="validarIngreso()" color="red" class="text-white"
+                            :loading="useIngreso.loading">Agregar
                             <template v-slot:loading>
                                 <q-spinner color="primary" size="1em" />
                             </template>
                         </q-btn>
-                        <q-btn v-if="accion !== 1" color="red" class="text-white" :loading="useIngreso.loading">
+                        <q-btn v-if="accion !== 1" @click="validarEdicionIngreso()" color="red" class="text-white"
+                            :loading="useIngreso.loading">
                             Editar
                             <template v-slot:loading>
                                 <q-spinner color="primary" size="1em" />
@@ -34,6 +56,7 @@
                 table-header-class="text-black font-weight-bold" :rows="rows" :columns="columns" row-key="name"
                 style="width: 90%;">
 
+
                 <template v-slot:body-cell-estado="props">
                     <q-td :props="props">
                         <p style="color: green;" v-if="props.row.estado == 1">Activo</p>
@@ -42,9 +65,16 @@
                 </template>
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props">
-                        <q-btn>✏️</q-btn>
-                        <q-btn v-if="props.row.estado == 1">❌</q-btn>
-                        <q-btn v-else>✅</q-btn>
+                        <div style="display: flex; gap:15px; justify-content: center;">
+                            <!-- boton de editar -->
+                            <q-btn color="primary" @click="traerIngreso(props.row)"><i
+                                    class="fas fa-pencil-alt"></i></q-btn>
+                            <!-- botons de activado y desactivado -->
+                            <q-btn v-if="props.row.estado == 1" @click="deshabilitarIngreso(props.row)" color="negative"><i
+                                    class="fas fa-times"></i></q-btn>
+                            <q-btn v-else @click="habilitarIngreso(props.row)" color="positive"><i
+                                    class="fas fa-check"></i></q-btn>
+                        </div>
                     </q-td>
                 </template>
             </q-table>
@@ -102,7 +132,7 @@ const columns = ref([
     {
         name: 'fecha',
         required: true,
-        label: 'Fecha del Mantenimiento',
+        label: 'Fecha',
         align: 'center',
         field: 'fecha',
         sortable: true,
@@ -138,22 +168,151 @@ const columns = ref([
     }
 ])
 
-let sedes =[];
-let datos = {}
+let sedes = [];
+let datos = {};
+let clientes = [];
+let dates = {}
 const options = ref(sedes)
+const opciones = ref(clientes)
 
-function filterFn(val,update,abort){
-    update(()=>{
-        const needle = val.toLowerCase()
-       options.value = sedes.filter(v=>v.label.toLowerCase().indexOf(needle) > -1)
+
+const filterFn = (val, update) => {
+    const needle = val.toLowerCase();
+    update(() => {
+        options.value = sedes.value.filter(v => v.label.toLowerCase().includes(needle));
+    });
+};
+
+const filtarCliente = (val, update) => {
+    const needle = val.toLowerCase();
+    update(() => {
+        opciones.value = clientes.value.filter(v => v.label.toLowerCase().includes(needle));
+    });
+};
+
+
+
+async function listarIngresos() {
+    const r = await useIngreso.listarIngresos()
+    rows.value = r.data.ingresos.reverse()
+    console.log(r.data.ingresos);
+
+}
+
+const listarSedes = async () => {
+    const data = await useSede.listarSedes();
+    sedes.value = data.data.sede.map(item => ({
+        label: item.codigo,
+        value: item._id
+    }));
+    options.value = sedes.value;
+    console.log('Sedes:', sedes.value);
+};
+
+const listarClientes = async () => {
+    const data = await useCliente.listarClientes();
+    clientes.value = data.data.clientes.map(item => ({
+        label: item.documento,
+        value: item._id
+    }));
+    opciones.value = clientes.value;
+    console.log('Clientes:', clientes.value);
+};
+
+function validarIngreso() {
+    if (idsede.value == "") {
+        Notify.create("Se debe agregar un id de la Sede");
+    } else if (idcliente.value == "") {
+        Notify.create("Se debe agregar un id del Cliente");
+    } else {
+        agregaringreso()
+        limpiar()
+        Notify.create({
+            type: "positive",
+            message: "Ingreso agregado exitosamente",
+        });
+    }
+}
+
+async function agregaringreso() {
+    const r = await useIngreso.postIngreso({
+        idsede: idsede.value.value,
+        idcliente: idcliente.value.value
     })
+    listarIngresos()
+    console.log(r);
+    cerrar()
 }
 
-async function listarIngresos(){
+
+async function habilitarIngreso(ingreso) {
+    const res = await useIngreso.putactivarIngreso(ingreso._id)
+        .then((response) => {
+            console.log(response);
+            listarIngresos()
+        })
+
+        .catch((error) => {
+            console.error('Error de sede:', error);
+            Notify.create("Ocurrió un error al verificar el código del Ingreso. Por favor inténtalo de nuevo.");
+        })
+}
+
+async function deshabilitarIngreso(ingreso) {
+    const res = await useIngreso.putdesactivarIngreso(ingreso._id)
+        .then((response) => {
+            console.log(response);
+            listarIngresos()
+        })
+
+        .catch((error) => {
+            console.error('Error de sede:', error);
+            Notify.create("Ocurrió un error al verificar el código del Ingreso. Por favor inténtalo de nuevo.");
+        })
+}
+
+function traerIngreso(ingreso) {
+    accion.value = 2
+    alert.value = true
+    idsede.value = ingreso.idsede
+    idcliente.value = ingreso.idcliente
+    id.value = ingreso._id
+
 
 }
 
-function limpiar(){
+function validarEdicionIngreso() {
+    if (idsede.value == "") {
+        Notify.create("Se debe agregar un id de la Sede");
+    } else if (idcliente.value == "") {
+        Notify.create("Se debe agregar un id del Cliente");
+    } else {
+        editarIngresos()
+        limpiar()
+        cerrar()
+        Notify.create({
+            type: "positive",
+            message: "Ingreso editado exitosamente",
+        });
+    }
+
+}
+
+async function editarIngresos() {
+    try {
+        await useIngreso.putIngreso(id.value, {
+            idsede: idsede.value.value,
+            idcliente: idcliente.value.value
+        })
+        listarIngresos()
+    } catch (error) {
+        console.error('Error de sede:', error);
+        Notify.create("Ocurrió un error al verificar el código del Ingreso. Por favor inténtalo de nuevo.");
+
+    }
+}
+
+function limpiar() {
     idsede.value = ''
     idcliente.value = ''
 
@@ -162,5 +321,7 @@ function limpiar(){
 
 onMounted(() => {
     listarIngresos()
+    listarSedes()
+    listarClientes()
 })
 </script>
