@@ -1,4 +1,4 @@
-<template>  
+<template>
     <div>
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Pago</q-btn>
@@ -12,7 +12,7 @@
                         </div>
                     </q-card-section>
                     <q-select outlined v-model="idCliente" use-input hide-selected fill-input input-debounce="0"
-                        class="q-my-md q-mx-md" :options="options" @filter="filterFn" label="Seleccione un Documento">
+                        class="q-my-md q-mx-md" :options="opciones" @filter="filterFn" label="Selecciona un Documento">
                         <template v-slot:no-option>
                             <q-item>
                                 <q-item-section class="text-grey">
@@ -22,7 +22,7 @@
                         </template>
                     </q-select>
                     <q-select outlined v-model="idPlan" use-input hide-selected fill-input input-debounce="0"
-                        class="q-my-md q-mx-md" :options="opciones" @filter="filtarPlanes" label="Selecciona un Plan">
+                        class="q-my-md q-mx-md" :options="options" @filter="filtarPlanes" label="Selecciona un Plan">
                         <template v-slot:no-option>
                             <q-item>
                                 <q-item-section class="text-grey">
@@ -32,14 +32,13 @@
                         </template>
                     </q-select>
                     <q-card-actions align="right">
-                        <q-btn v-if="accion === 1"  color="red" @click="validarPago()" class="text-white"
+                        <q-btn v-if="accion === 1" color="red" @click="validarPago()" class="text-white"
                             :loading="usePago.loading">Agregar
                             <template v-slot:loading>
                                 <q-spinner color="primary" size="1em" />
                             </template>
                         </q-btn>
-                        <q-btn v-if="accion !== 1"  color="red" class="text-white"
-                            :loading="usePago.loading">
+                        <q-btn v-if="accion !== 1" color="red" class="text-white" :loading="usePago.loading">
                             Editar
                             <template v-slot:loading>
                                 <q-spinner color="primary" size="1em" />
@@ -64,9 +63,9 @@
                 </template>
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props">
-                        <q-btn >✏️</q-btn>
-                        <q-btn v-if="props.row.estado == 1" >❌</q-btn>
-                        <q-btn v-else >✅</q-btn>
+                        <q-btn>✏️</q-btn>
+                        <q-btn v-if="props.row.estado == 1">❌</q-btn>
+                        <q-btn v-else>✅</q-btn>
                     </q-td>
                 </template>
             </q-table>
@@ -112,7 +111,7 @@ const columns = ref([
         align: 'center',
         field: 'idCliente',
         sortable: true
-    }, 
+    },
     {
         name: 'plan',
         required: true,
@@ -120,7 +119,7 @@ const columns = ref([
         align: 'center',
         field: 'plan',
         sortable: true
-    }, 
+    },
     {
         name: 'fecha',
         required: true,
@@ -165,83 +164,89 @@ const columns = ref([
 
 ])
 
-let clientes =[];
-let planes = [];
-const options = ref(clientes)
-const opciones = ref(planes)
 
-function filterFn(val, update, abort) {
-    update(() => {
-        const needle = val.toLowerCase();
-        options.value = clientes.filter(v => v.label.toLowerCase().indexOf(needle) > -1);
-    });
-};
 
-const filtarPlanes = (val, update, abort) => {
-    update(() => {
-        const needle = val.toLowerCase();
-        opciones.value = planes.filter(v => v.label.toLowerCase().indexOf(needle) > -1);
-    });
-};
-
-async function listarPagos(){
+async function listarPagos() {
     const r = await usePago.listarPagos()
     rows.value = r.data.pagos.reverse()
     console.log(r.data.pagos)
 }
 
-async function listarClientes(){
-    const r = await useCliente.listarClientes()
-    clientes = r.data.clientes.map((cliente) => {
-        return {
-            value: cliente._id,
-            label: cliente.documento
-        }
-    })
-    options.value = clientes
-    console.log(clientes)
+let planes = []
+let clientes = []
+const options = ref(planes)
+const opciones = ref(clientes)
+
+const listarClientes = async () => {
+    const data = await useCliente.listarClientes();
+    clientes.value = data.data.clientes.map(item => ({
+        label: item.documento,
+        value: item._id
+    }))
+    opciones.value = clientes.value
+    console.log(`Clientes:`, clientes.value);
+}
+const listarPlanes = async () => {
+    const data = await usePlan.listarPlanes();
+    planes.value = data.data.planes.map(item => ({
+        label: item.descripcion,
+        value: item._id
+    }))
+    options.value = planes.value
+    console.log(`Planes:`, planes.value);
 
 }
 
-const listarPlanes = async ()=>{
-    const r = await usePlan.listarPlanes()
-    planes = r.data.planes.map((plan) => {
-        return {
-            label: plan.codigo,
-            value: plan.descripcion
-        }
-    })
-    opciones.value = planes
-    console.log(planes)
+function filterFn(val, update) {
+    update(() => {
+        const needle = val.toLowerCase();
+        return opciones.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1);
+    });
+}
 
+function filtarPlanes(val, update) {
+    update(() => {
+        const needle = val.toLowerCase();
+        return options.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1);
+    });
 }
 
 
-function validarPago(){
-    if(idCliente.value == ""){
-        Notify.create("Se debe agregar un id del cliente");
-    }else{
-        agregarPago()
-        limpiar()
+function validarPago() {
+    if (idCliente.value == "") {
+        Notify.create("Se debe agregar un cliente");
+    } else if (idPlan.value == "") {
+        Notify.create("Se debe agregar un Plan");
+    } else {
+        agregarpago()
+        cerrar()
         Notify.create({
-            type: "positive",
-            message: "Pago agregado exitosamente",
-        });
+            message: 'Pago agregado correctamente',
+            color: 'green',
+            position: 'top'
+        })
     }
 }
 
-async function agregarPago(){
+async function agregarpago() {
     const r = await usePago.postPago({
-        idCliente: idCliente.value.value
+        idCliente: idCliente.value.value,
+        idPlan: idPlan.value.value
+
     })
     cerrar()
     listarPagos()
     console.log(r)
-
 }
 
-function limpiar(){
+
+
+
+
+
+function limpiar() {
     idCliente.value = ''
+    idPlan.value = ''
 }
 
 onMounted(() => {
