@@ -278,7 +278,7 @@ function traerPlan(plan){
     accion.value = 2
     alert.value = true
     idCliente.value = plan.idCliente
-    idPlan.value = plan.idPlan
+    planes.value = plan.idPlan
     id.value = plan._id
   
 }

@@ -8,7 +8,7 @@
                 <q-card class="" style="width: 700px">
                     <q-card-section style="background-color: #a1312d; margin-bottom: 20px">
                         <div class="text-h6 text-white">
-                            {{ accion == 1 ? "Agregar Usuario" : "Editar Editar" }}
+                            {{ accion == 1 ? "Agregar Usuario" : "Editar Usuario" }}
                         </div>
                     </q-card-section>
                     <q-select outlined v-model="idsede" use-input hide-selected fill-input input-debounce="0"

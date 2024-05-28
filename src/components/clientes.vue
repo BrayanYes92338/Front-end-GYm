@@ -16,11 +16,11 @@
             type="date" />
           <q-input outlined v-model="edad" label="Ingrese la edad del Cliente" class="q-my-md q-mx-md" type="tel" />
           <q-input outlined v-model="documento" label="Ingrese el Documento del Cliente" class="q-my-md q-mx-md"
-            type="tel" />
+            type="tel" required pattern="[0-9]+" maxlength="10" />
           <q-input outlined v-model="direccion" label="Ingrese la direccion del Cliente" class="q-my-md q-mx-md"
             type="text" />
           <q-input outlined v-model="telefono" label="Ingrese el Telefono del Cliente" class="q-my-md q-mx-md"
-            type="tel" />
+            type="tel"  required pattern="[0-9]+" maxlength="10"/>
           <q-select outlined v-model="idPlan" use-input hide-selected fill-input input-debounce="0"
             class="q-my-md q-mx-md" :options="options" @filter="filterFn" label="Seleccione un Plan">
             <template v-slot:no-option>
@@ -102,6 +102,12 @@ let idPlan = ref("")
 let foto = ref("")
 let objetivo = ref("")
 let observaciones = ref("")
+let seguimiento = ref([]);
+let peso = ref("")
+let estatura = ref("")
+let brazo = ref("")
+let pierna = ref("")
+let cintura = ref("")
 
 const useCliente = useStoreCliente()
 const usePlan = useStorePlan()
@@ -155,7 +161,7 @@ const columns = ref([
     required: true,
     label: 'Fecha Ingreso',
     align: 'center',
-    field: 'fechaIngreso',
+    field: (row) => row.fechaIngreso.split("T")[0],
     sortable: true,
     format: (val) => {
       const fechaIngreso = new Date(val)
@@ -193,9 +199,9 @@ const columns = ref([
   {
     name: 'idPlan',
     required: true,
-    label: 'ID Plan',
+    label: 'Tipo Plan',
     align: 'center',
-    field: 'idPlan',
+    field: (row)=>row.idPlan.descripcion,
     sortable: true,
   },
   {
@@ -284,7 +290,7 @@ async function listarPlanes() {
   data.data.planes.forEach(item => {
     dates = {
       label: item.codigo,
-      value: item._id
+      value: item.descripcion
     }
     planes.push(dates)
   })
@@ -293,6 +299,7 @@ async function listarPlanes() {
 
 function validarCliente() {
   let validacionnumeros = /^[0-9]+$/;
+
 
   if (nombre.value == "") {
     Notify.create("Se debe agregar un nombre del Cliente");
@@ -309,7 +316,9 @@ function validarCliente() {
   } else if (documento.value == "") {
     Notify.create("Se debe agregar el documento del Cliente");
 
-  }else if(!validacionnumeros.test(documento.value)){
+  }else if(documento.value.length <= 7){
+    Notify.create("Se debe agregar al menos 7 numeros");
+  }  else if(!validacionnumeros.test(documento.value)){
     Notify.create("El documento debe ser un numero");
   }  else if (direccion.value == "") {
     Notify.create("Se debe agregar la direccion del Cliente");
@@ -317,6 +326,8 @@ function validarCliente() {
   } else if (telefono.value == "") {
     Notify.create("Se debe agregar el telefono del Cliente");
 
+  }else if(telefono.value.length <10){
+    Notify.create("Se debe agregar al menos 10 numeros");
   } else if (!validacionnumeros.test(telefono.value)) {
     Notify.create("El telefono debe ser un numero");
 
@@ -341,6 +352,14 @@ function validarCliente() {
     });
   }
 
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 async function agregarCliente() {
@@ -396,7 +415,7 @@ function traerCliente(cliente){
   alert.value = true;
   id.value = cliente._id
   nombre.value = cliente.nombre
-  fechaNacimiento.value = cliente.fechaNacimiento
+  fechaNacimiento.value = cliente.fechaNacimiento.split("T")[0]
   edad.value = cliente.edad
   documento.value = cliente.documento
   direccion.value = cliente.direccion
