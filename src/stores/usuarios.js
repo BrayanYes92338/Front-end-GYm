@@ -112,7 +112,6 @@ export const useUsuarioStore = defineStore("usuarios", () => {
     let login = async (data) => {
         try {
             let res = await axios.post("api/usuarios/login", data)
-            console.log(token.value);
             return res;
         } catch (error) {
             console.log(error);

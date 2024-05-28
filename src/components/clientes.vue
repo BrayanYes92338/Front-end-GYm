@@ -55,6 +55,57 @@
         </q-card>
       </q-dialog>
     </div>
+
+    <div>
+      <q-dialog v-model="seguimientoModel" persistent full-width>
+        <q-card class="">
+          <q-card-section style="background-color: #a1312d; margin-bottom: 20px">
+            <div class="text-h6 text-white">
+              Seguimientos de {{ nombreSeg }} 
+            </div>
+          </q-card-section>
+          <q-table v-if="seguimiento.length > 0" table-header-class="text-black font-weight-bold" :rows="seguimiento" :columns="columnSeguimiento" row-key="name" >
+          </q-table>
+          <h4 v-else>El usuario {{ nombreSeg }} no cuenta con seguimientos</h4>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="black" outline @click="seguimientoModel = false" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+    </div>
+
+    <div>
+      <q-dialog v-model="modalInfoSeg" persistent>
+        <q-card style="width: 800px;">
+          <q-card-section style="background-color: #a1312d; margin-bottom: 20px">
+            <div class="text-h6 text-white">
+              Seguimientos de {{ nombreSeg }} 
+            </div>
+          </q-card-section>
+            <q-input outlined v-model="peso" label="Ingrese el peso del Cliente" class="q-my-md q-mx-md" type="number" />
+            <q-input outlined v-model="estatura" label="Ingrese la altura del Cliente" class="q-my-md q-mx-md" type="number" />
+            <q-field filled :dense="false" disable class="q-my-md q-mx-md">
+              <template v-slot:control >
+                <div v-if="peso && estatura " class="self-center full-width no-outline">{{  peso / (estatura * estatura)  }}</div>
+              </template>
+            </q-field>
+            <!-- <q-input outlined v-model="imc" label="Ingrese la altura del Cliente" class="q-my-md q-mx-md" type="text" /> -->
+            <q-input outlined v-model="brazo" label="Ingrese la medida de brazo del Cliente" class="q-my-md q-mx-md" type="tel" required pattern="[0-9]+" maxlength="10" />
+            <q-input outlined v-model="pierna" label="Ingrese la medida de pierna del Cliente" class="q-my-md q-mx-md" type="text" />
+            <q-input outlined v-model="cintura" label="Ingrese la medida de cintura del Cliente" class="q-my-md q-mx-md" type="tel" required pattern="[0-9]+" maxlength="10" />
+          <q-card-actions align="right">
+            <q-btn  @click="editarSeguimientoCliente()" color="red" class="text-white"
+              :loading="useCliente.loading">Agregar
+              <template v-slot:loading>
+                <q-spinner color="primary" size="1em" />
+              </template>
+            </q-btn>
+            <q-btn label="Cerrar" color="black" outline @click="modalInfoSeg = false" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+    </div>
+
     <div style="display: flex; justify-content: center">
       <q-table title="Clientes" title-class="text-red text-weight-bolder text-h4"
         table-header-class="text-black font-weight-bold" :rows="rows" :columns="columns" row-key="name"
@@ -70,17 +121,21 @@
           <q-td :props="props">
             <div style="display: flex; gap:15px; justify-content: center;">
               <!-- boton de editar -->
-              <q-btn color="primary" @click="traerCliente(props.row)"><i class="fas fa-pencil-alt"></i></q-btn>
+              <q-btn color="primary" @click="traerCliente(props.row)"><i class="fas fa-pencil-alt"></i>
+                <q-tooltip>
+                  Editar
+                </q-tooltip>
+              </q-btn>
               <!-- botons de activado y desactivado -->
               <q-btn v-if="props.row.estado == 1" @click="deshabilitarCliente(props.row)" color="negative"><i
                   class="fas fa-times"></i></q-btn>
               <q-btn v-else color="positive" @click="habilitarCliente(props.row)"><i class="fas fa-check"></i></q-btn>
               <!-- botones de seguimiento -->
-              <q-btn color="teal">
-                <i class="fas fa-eye"></i>
+              <q-btn color="teal" @click="traerSeguimiento(props.row)">
+                <i class="fas fa-eye" ></i>
               </q-btn>
-              <q-btn color="pink">
-                <i class="fas fa-plus"></i>
+              <q-btn color="pink" @click="modalInfoSeg = true">
+                <i class="fas fa-plus" ></i>
               </q-btn>
             </div>
           </q-td>
@@ -113,12 +168,88 @@ let idPlan = ref("")
 let foto = ref("")
 let objetivo = ref("")
 let observaciones = ref("")
+let seguimientoModel = ref(false)
 let seguimiento = ref([]);
+let nombreSeg = ref("")
+let modalInfoSeg = ref(false);
+let fechaSeg = ref("")
 let peso = ref("")
 let estatura = ref("")
 let brazo = ref("")
 let pierna = ref("")
 let cintura = ref("")
+let idSeg = ref("")
+
+let columnSeguimiento = ref([
+{
+    name: 'fecha',
+    required: true,
+    label: 'Fecha',
+    align: 'center',
+    field: 'fecha',
+    sortable: true,
+    format: (val) => {
+      const fechaIngreso = new Date(val)
+      return fechaIngreso.toLocaleDateString()
+    }
+  },
+  {
+    name: 'peso',
+    required: true,
+    label: 'Peso',
+    align: 'center',
+    field: 'peso',
+    sortable: true,
+    format: (val) => {
+      // Capitalizar la primera letra del responsable
+      return val.charAt(0).toUpperCase() + val.slice(1);
+    }
+  },
+  {
+    name: 'estatura',
+    required: true,
+    label: 'Altura',
+    align: 'center',
+    field: 'estatura',
+    sortable: true,
+    format: (val) => {
+      // Capitalizar la primera letra del responsable
+      return (val / 100).toFixed(2)
+    }
+  },
+  {
+    name: 'imc',
+    required: true,
+    label: 'IMC',
+    align: 'center',
+    field: 'imc',
+    sortable: true,
+  },
+  {
+    name: 'brazo',
+    required: true,
+    label: 'Medida Brazo',
+    align: 'center',
+    field: 'brazo',
+    sortable: true,
+  },
+  {
+    name: 'pierna',
+    required: true,
+    label: 'Medida Pierna',
+    align: 'center',
+    field: 'pierna',
+    sortable: true,
+  },
+  {
+    name: 'cintura',
+    required: true,
+    label: 'Medida Cintura',
+    align: 'center',
+    field: 'cintura',
+    sortable: true,
+  }
+])
 
 const useCliente = useStoreCliente()
 const usePlan = useStorePlan()
@@ -300,8 +431,8 @@ async function listarPlanes() {
   const data = await usePlan.listarPlanes()
   data.data.planes.forEach(item => {
     dates = {
-      label: item.codigo,
-      value: item.descripcion
+      label: item.descripcion,
+      value: item._id
     }
     planes.push(dates)
   })
@@ -373,6 +504,36 @@ function formatDate(dateString) {
   return `${year}-${month}-${day}`;
 }
 
+function traerSeguimiento(cliente){
+  seguimientoModel.value= true;
+  idSeg.value = cliente._id
+  nombreSeg.value = cliente.nombre
+  seguimiento.value = cliente.seguimiento
+}
+
+async function editarSeguimientoCliente() {
+  try {
+    let nuevoSeguimiento = {
+      fecha: Date.now(),
+      peso: peso.value,
+      estatura: estatura.value,
+      brazo: brazo.value,
+      pierna: pierna.value,
+      cintura: cintura.value,
+      imc: `${peso.value / (estatura.value * estatura.value)}`
+    }
+    modalInfoSeg.value = false
+    await useCliente.putCliente(idSeg.value, {
+      seguimiento: seguimiento.value
+    })
+    listarClientes()
+
+  } catch (error) {
+    console.error('Error de cliente', error)
+    Notify.create('Ocurrio un error al editar el cliente')
+  }
+}
+
 async function agregarCliente() {
   const r = await useCliente.postClientes({
     nombre: nombre.value,
@@ -431,14 +592,14 @@ function traerCliente(cliente) {
   documento.value = cliente.documento
   direccion.value = cliente.direccion
   telefono.value = cliente.telefono
-   idPlan.value={
+  idPlan.value = {
     label: cliente.idPlan.descripcion,
     value: cliente.idPlan._id
   }
   foto.value = cliente.foto
   objetivo.value = cliente.objetivo
   observaciones.value = cliente.observaciones
-
+  
 }
 
 function validarEdicionCliente() {
@@ -497,6 +658,7 @@ function validarEdicionCliente() {
 
 async function editarcliente() {
   try {
+    console.log(idPlan.value);
     await useCliente.putCliente(id.value, {
       nombre: nombre.value,
       fechaNacimiento: fechaNacimiento.value,

@@ -5,7 +5,7 @@
   <q-toolbar>
     <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
     <q-toolbar-title>
-      <p class="rol-user">hola</p>
+      <p class="rol-user">{{ usuario.rol }}</p>
     </q-toolbar-title>
   </q-toolbar>
 </q-header>
@@ -13,7 +13,7 @@
 <q-drawer v-model="leftDrawerOpen" side="left" overlay bordered class="side-bar scrolling-sidebar">
   <header class=header>
     <img src="../img/user.jpg" alt="" class="perfil-prueba">
-    <p class="name-user">Nombre Usuario</p>
+    <p class="name-user">{{ usuario.nombre }}</p>
   </header>
   <div class="menu">
     <div class="item"> <router-link class="item opciones" to="/home"><i class="fas fa-tachometer-alt"></i>
@@ -85,7 +85,7 @@
 
   </div>
   <div class="btn-cerrar">
-    <button class="cerrar-sesion"> <i class="fa fa-sign-out-alt "></i> Cerrar Sesion</button>
+    <button class="cerrar-sesion" @click="singOut()"> <i class="fa fa-sign-out-alt "></i> Cerrar Sesion</button>
   </div>
 </q-drawer>
 
@@ -107,10 +107,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUsuarioStore } from '../stores/usuarios';
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 let useUsuario = useUsuarioStore()
 
-
+let usuario = useUsuario.user
 
 
 const leftDrawerOpen = ref(false)
@@ -129,6 +131,11 @@ const toggleSubMenu = (menu) => {
   subMenus.value[menu] = !subMenus.value[menu]
 }
 
+const singOut = () =>{
+  useUsuario.user = {}
+  useUsuario.token = ''
+  router.push('/');
+}
 
 </script>
 
