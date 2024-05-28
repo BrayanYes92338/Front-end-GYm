@@ -19,8 +19,8 @@
             type="tel" required pattern="[0-9]+" maxlength="10" />
           <q-input outlined v-model="direccion" label="Ingrese la direccion del Cliente" class="q-my-md q-mx-md"
             type="text" />
-          <q-input outlined v-model="telefono" label="Ingrese el Telefono del Cliente" class="q-my-md q-mx-md"
-            type="tel"  required pattern="[0-9]+" maxlength="10"/>
+          <q-input outlined v-model="telefono" label="Ingrese el Telefono del Cliente" class="q-my-md q-mx-md" type="tel"
+            required pattern="[0-9]+" maxlength="10" />
           <q-select outlined v-model="idPlan" use-input hide-selected fill-input input-debounce="0"
             class="q-my-md q-mx-md" :options="options" @filter="filterFn" label="Seleccione un Plan">
             <template v-slot:no-option>
@@ -70,15 +70,26 @@
           <q-td :props="props">
             <div style="display: flex; gap:15px; justify-content: center;">
               <!-- boton de editar -->
-              <q-btn color="primary" @click="traerCliente(props.row)" ><i class="fas fa-pencil-alt"></i></q-btn>
+              <q-btn color="primary" @click="traerCliente(props.row)"><i class="fas fa-pencil-alt"></i></q-btn>
               <!-- botons de activado y desactivado -->
-              <q-btn v-if="props.row.estado == 1" @click="deshabilitarCliente(props.row)"  color="negative"><i class="fas fa-times"></i></q-btn>
-              <q-btn v-else color="positive" @click="habilitarCliente(props.row)" ><i class="fas fa-check"></i></q-btn>
+              <q-btn v-if="props.row.estado == 1" @click="deshabilitarCliente(props.row)" color="negative"><i
+                  class="fas fa-times"></i></q-btn>
+              <q-btn v-else color="positive" @click="habilitarCliente(props.row)"><i class="fas fa-check"></i></q-btn>
+              <!-- botones de seguimiento -->
+              <q-btn color="teal">
+                <i class="fas fa-eye"></i>
+              </q-btn>
+              <q-btn color="pink">
+                <i class="fas fa-plus"></i>
+              </q-btn>
             </div>
           </q-td>
         </template>
       </q-table>
     </div>
+
+
+
   </div>
 </template>
 
@@ -201,7 +212,7 @@ const columns = ref([
     required: true,
     label: 'Tipo Plan',
     align: 'center',
-    field: (row)=>row.idPlan.descripcion,
+    field: (row) => row.idPlan.descripcion,
     sortable: true,
   },
   {
@@ -316,17 +327,17 @@ function validarCliente() {
   } else if (documento.value == "") {
     Notify.create("Se debe agregar el documento del Cliente");
 
-  }else if(documento.value.length <= 7){
+  } else if (documento.value.length <= 7) {
     Notify.create("Se debe agregar al menos 7 numeros");
-  }  else if(!validacionnumeros.test(documento.value)){
+  } else if (!validacionnumeros.test(documento.value)) {
     Notify.create("El documento debe ser un numero");
-  }  else if (direccion.value == "") {
+  } else if (direccion.value == "") {
     Notify.create("Se debe agregar la direccion del Cliente");
 
   } else if (telefono.value == "") {
     Notify.create("Se debe agregar el telefono del Cliente");
 
-  }else if(telefono.value.length <10){
+  } else if (telefono.value.length < 10) {
     Notify.create("Se debe agregar al menos 10 numeros");
   } else if (!validacionnumeros.test(telefono.value)) {
     Notify.create("El telefono debe ser un numero");
@@ -410,7 +421,7 @@ async function deshabilitarCliente(cliente) {
 
 }
 
-function traerCliente(cliente){
+function traerCliente(cliente) {
   accion.value = 2
   alert.value = true;
   id.value = cliente._id
@@ -420,7 +431,10 @@ function traerCliente(cliente){
   documento.value = cliente.documento
   direccion.value = cliente.direccion
   telefono.value = cliente.telefono
-  idPlan.value = cliente.idPlan
+   idPlan.value={
+    label: cliente.idPlan.descripcion,
+    value: cliente.idPlan._id
+  }
   foto.value = cliente.foto
   objetivo.value = cliente.objetivo
   observaciones.value = cliente.observaciones
@@ -445,7 +459,7 @@ function validarEdicionCliente() {
   } else if (documento.value == "") {
     Notify.create("Se debe agregar el documento del Cliente");
 
-  }else if(!validacionnumeros.test(documento.value)){
+  } else if (!validacionnumeros.test(documento.value)) {
     Notify.create("El documento debe ser un numero");
   } else if (direccion.value == "") {
     Notify.create("Se debe agregar la direccion del Cliente");
@@ -481,9 +495,9 @@ function validarEdicionCliente() {
 }
 
 
-async function editarcliente(){
-  try{
-    await useCliente.putCliente(id.value,{
+async function editarcliente() {
+  try {
+    await useCliente.putCliente(id.value, {
       nombre: nombre.value,
       fechaNacimiento: fechaNacimiento.value,
       edad: edad.value,
@@ -497,9 +511,9 @@ async function editarcliente(){
     })
     listarClientes()
 
-  }catch (error){
+  } catch (error) {
     console.error('Error de cliente', error)
-        Notify.create('Ocurrio un error al editar el cliente')
+    Notify.create('Ocurrio un error al editar el cliente')
   }
 }
 

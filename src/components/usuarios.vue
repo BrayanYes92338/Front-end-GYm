@@ -3,66 +3,111 @@
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Registrar Usuario</q-btn>
         </div>
-        <div>
-            <q-dialog v-model="alert" persistent>
-                <q-card class="" style="width: 700px">
-                    <q-card-section style="background-color: #a1312d; margin-bottom: 20px">
-                        <div class="text-h6 text-white">
-                            {{ accion == 1 ? "Agregar Usuario" : "Editar Usuario" }}
-                        </div>
-                    </q-card-section>
-                    <q-select outlined v-model="idsede" use-input hide-selected fill-input input-debounce="0"
-                        class="q-my-md q-mx-md" :options="options" @filter="filterFn"
-                        label="Selecciona la Sede del Trabajador">
-                        <template v-slot:no-option>
-                            <q-item>
-                                <q-item-section class="text-grey">
-                                    Sin resultados
-                                </q-item-section>
-                            </q-item>
-                        </template>
-                    </q-select>
-                    <q-input outlined v-model="nombre" use-input hide-selected fill-input input-debounce="0"
-                        class="q-my-md q-mx-md" label="Nombre del Usuario" type="text" />
-                    <q-input outlined v-model="direccion" use-input hide-selected fill-input input-debounce="0"
-                        class="q-my-md q-mx-md" label="Direccion del Usuario" type="text" />
-                    <q-input outlined v-model="horario" use-input hide-selected fill-input input-debounce="0"
-                        class="q-my-md q-mx-md" label="Horario de Entrada" type="time" />
-                    <q-input outlined v-model="ciudad" use-input hide-selected fill-input input-debounce="0"
-                        class="q-my-md q-mx-md" label="Ciudad" type="text" />
-                    <q-input outlined v-model="telefono" use-input hide-selected fill-input input-debounce="0"
-                        class="q-my-md q-mx-md" label="Telefono" type="tel" required pattern="[0-9]+" maxlength="10" />
-                    <q-input outlined v-model="correo" use-input hide-selected fill-input input-debounce="0"
-                        class="q-my-md q-mx-md" label="Correo" type="email" />
-                    <q-input outlined v-model="password" use-input hide-selected fill-input input-debounce="0"
-                        :type="isPwd ? 'password' : 'text'" class="q-my-md q-mx-md" label="Contraseña">
-                        <template v-slot:append>
-                            <q-icon name="fas fa-eye" class="cursor-pointer" v-if="isPwd"
-                                @click="togglePasswordVisibility" />
-                            <q-icon name="fas fa-eye-slash" class="cursor-pointer" v-else
-                                @click="togglePasswordVisibility" />
-                        </template>
-                    </q-input>
-                    <q-select outlined v-model="rol" :options="['ENTRENADOR', 'RECEPCIÓN']"
-                        label="Seleccione el Rol del Usuario" class="q-my-md q-mx-md" />
-                    <q-card-actions align="right">
-                        <q-btn v-if="accion === 1" @click="validarUsuario()" color="red" class="text-white"
-                            :loading="useUsuario.loading">Agregar
-                            <template v-slot:loading>
-                                <q-spinner color="primary" size="1em" />
-                            </template>
-                        </q-btn>
-                        <q-btn v-if="accion !== 1" @click="validarEdicionUsuario()" color="red" class="text-white" :loading="useUsuario.loading">
-                            Editar
-                            <template v-slot:loading>
-                                <q-spinner color="primary" size="1em" />
-                            </template>
-                        </q-btn>
-                        <q-btn label="Cerrar" color="black" outline @click="cerrar()" />
-                    </q-card-actions>
-                </q-card>
-            </q-dialog>
-        </div>
+
+
+ <!-- AGREGAR USUARIO -->
+ <div>
+    <q-dialog v-model="alert" persistent>
+        <q-card class="" style="width: 700px">
+            <q-card-section style="background-color: #a1312d; margin-bottom: 20px">
+                <div class="text-h6 text-white">
+                    Agregar Usuario
+                </div>
+            </q-card-section>
+            <q-select outlined v-model="idsede" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" :options="options" @filter="filterFn"
+                label="Selecciona la Sede del Trabajador">
+                <template v-slot:no-option>
+                    <q-item>
+                        <q-item-section class="text-grey">
+                            Sin resultados
+                        </q-item-section>
+                    </q-item>
+                </template>
+            </q-select>
+            <q-input outlined v-model="nombre" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" label="Nombre del Usuario" type="text" />
+            <q-input outlined v-model="direccion" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" label="Direccion del Usuario" type="text" />
+            <q-input outlined v-model="horario" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" label="Horario de Entrada" type="time" />
+            <q-input outlined v-model="ciudad" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" label="Ciudad" type="text" />
+            <q-input outlined v-model="telefono" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" label="Telefono" type="tel" required pattern="[0-9]+" maxlength="10" />
+            <q-input outlined v-model="correo" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" label="Correo" type="email" />
+            <q-input outlined v-model="password" use-input hide-selected fill-input input-debounce="0"
+                :type="isPwd ? 'password' : 'text'" class="q-my-md q-mx-md" label="Contraseña">
+                <template v-slot:append>
+                    <q-icon name="fas fa-eye" class="cursor-pointer" v-if="isPwd"
+                        @click="togglePasswordVisibility" />
+                    <q-icon name="fas fa-eye-slash" class="cursor-pointer" v-else
+                        @click="togglePasswordVisibility" />
+                </template>
+            </q-input>
+            <q-select outlined v-model="rol" :options="['ENTRENADOR', 'RECEPCIÓN']"
+                label="Seleccione el Rol del Usuario" class="q-my-md q-mx-md" />
+            <q-card-actions align="right">
+                <q-btn @click="validarUsuario()" color="red" class="text-white" :loading="useUsuario.loading">
+                    Agregar
+                    <template v-slot:loading>
+                        <q-spinner color="primary" size="1em" />
+                    </template>
+                </q-btn>
+                <q-btn label="Cerrar" color="black" outline @click="cerrar()" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
+</div>
+
+ <!-- EDITAR USUARIO -->
+
+ <div>
+    <q-dialog v-model="alerta" persistent>
+        <q-card class="" style="width: 700px">
+            <q-card-section style="background-color: #a1312d; margin-bottom: 20px">
+                <div class="text-h6 text-white">
+                    Editar Usuario
+                </div>
+            </q-card-section>
+            <q-select outlined v-model="idsede" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" :options="options" @filter="filterFn"
+                label="Selecciona la Sede del Trabajador">
+                <template v-slot:no-option>
+                    <q-item>
+                        <q-item-section class="text-grey">
+                            Sin resultados
+                        </q-item-section>
+                    </q-item>
+                </template>
+            </q-select>
+            <q-input outlined v-model="nombre" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" label="Nombre del Usuario" type="text" />
+            <q-input outlined v-model="direccion" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" label="Direccion del Usuario" type="text" />
+            <q-input outlined v-model="horario" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" label="Horario de Entrada" type="time" />
+            <q-input outlined v-model="ciudad" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" label="Ciudad" type="text" />
+            <q-input outlined v-model="telefono" use-input hide-selected fill-input input-debounce="0"
+                class="q-my-md q-mx-md" label="Telefono" type="tel" required pattern="[0-9]+" maxlength="10" />   
+            <q-card-actions align="right">
+                <q-btn @click="validarEdicionUsuario()" color="red" class="text-white" :loading="useUsuario.loading">
+                    Editar
+                    <template v-slot:loading>
+                        <q-spinner color="primary" size="1em" />
+                    </template>
+                </q-btn>
+                <q-btn label="Cerrar" color="black" outline @click="cerrar2()" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
+</div>
+
+
+        
+
         <div style="display: flex; justify-content: center">
             <q-table title="Usuarios" title-class="text-red text-weight-bolder text-h4"
                 table-header-class="text-black font-weight-bold" :rows="rows" :columns="columns" row-key="name"
@@ -78,10 +123,13 @@
                     <q-td :props="props">
                         <div style="display: flex; gap:15px; justify-content: center;">
                             <!-- boton de editar -->
-                            <q-btn color="primary" @click="traerUsuario(props.row)" ><i class="fas fa-pencil-alt"></i></q-btn>
+                            <q-btn color="primary" @click="traerUsuario(props.row)"><i
+                                    class="fas fa-pencil-alt"></i></q-btn>
                             <!-- botons de activado y desactivado -->
-                            <q-btn v-if="props.row.estado == 1" @click="deshabilitarUsuario (props.row)" color="negative"><i class="fas fa-times"></i></q-btn>
-                            <q-btn v-else color="positive" @click="habilitarUsuaro(props.row)" ><i class="fas fa-check"></i></q-btn>
+                            <q-btn v-if="props.row.estado == 1" @click="deshabilitarUsuario(props.row)" color="negative"><i
+                                    class="fas fa-times"></i></q-btn>
+                            <q-btn v-else color="positive" @click="habilitarUsuaro(props.row)"><i
+                                    class="fas fa-check"></i></q-btn>
                         </div>
                     </q-td>
                 </template>
@@ -114,10 +162,18 @@ let id = ref("")
 let accion = ref(1)
 let alert = ref(false)
 let isPwd = ref(true)
+let alerta = ref(false)
+
+
+function cerrar2(){
+alerta.value = false
+
+}
 
 function abrir() {
     accion.value = 1;
     alert.value = true;
+    limpiar()
 
 }
 
@@ -320,36 +376,35 @@ async function agregarUsuario() {
 }
 
 async function habilitarUsuaro(usuario) {
-const res = await useUsuario.putActivarUsuario(usuario._id)
-.then((response)=>{
-    console.log(response);
-    listarUsuarios()
-})
+    const res = await useUsuario.putActivarUsuario(usuario._id)
+        .then((response) => {
+            console.log(response);
+            listarUsuarios()
+        })
 
-.catch((error)=>{
-    console.error('Error de Usuario', error);
-    Notify.create('Error al habilitar el Usuario')
-})
+        .catch((error) => {
+            console.error('Error de Usuario', error);
+            Notify.create('Error al habilitar el Usuario')
+        })
 
 }
 
-async function deshabilitarUsuario (usuario){
+async function deshabilitarUsuario(usuario) {
     const res = await useUsuario.putdesactivarUsuario(usuario._id)
-    .then((response)=>{
-        console.log(response);
-        listarUsuarios()
-    })
+        .then((response) => {
+            console.log(response);
+            listarUsuarios()
+        })
 
-    .catch((error)=>{
-        console.error('Error de Usuario', error);
-        Notify.create('Error al deshabilitar el Usuario')
-    })
+        .catch((error) => {
+            console.error('Error de Usuario', error);
+            Notify.create('Error al deshabilitar el Usuario')
+        })
 
 }
 
-function traerUsuario(usuario){
-    accion.value = 2
-    alert.value = true
+function traerUsuario(usuario) {
+    alerta.value = true
     idsede.value = usuario.idsede
     id.value = usuario._id
     nombre.value = usuario.nombre
@@ -357,15 +412,12 @@ function traerUsuario(usuario){
     horario.value = usuario.horario
     ciudad.value = usuario.ciudad
     telefono.value = usuario.telefono
-    correo.value = usuario.correo
-    password.value = usuario.password
-    rol.value = usuario.rol
 
 }
 
-function validarEdicionUsuario(){
+function validarEdicionUsuario() {
     let validacionnumeros = /^[0-9]+$/;
-    let validacionCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+   
     if (idsede.value == "") {
         Notify.create("Se debe agregar un id de la Sede");
     } else if (nombre.value == "") {
@@ -380,13 +432,10 @@ function validarEdicionUsuario(){
         Notify.create("Se debe agregar un telefono");
     } else if (!validacionnumeros.test(telefono.value)) {
         Notify.create("El telefono solo debe contener numeros");
-
-    }  else if (rol.value == "") {
-        Notify.create("Se debe agregar un rol");
     } else {
         editarUsuario()
         limpiar()
-        cerrar()
+        cerrar2()
         Notify.create({
             type: "positive",
             message: "Usuario editado exitosamente",
@@ -395,20 +444,19 @@ function validarEdicionUsuario(){
 
 }
 
-async function editarUsuario(){
-    try{
-        await useUsuario.putUsuario(id.value,{
+async function editarUsuario() {
+    try {
+        await useUsuario.putUsuario(id.value, {
             idsede: idsede.value.value,
             nombre: nombre.value,
             direccion: direccion.value,
             horario: horario.value,
             ciudad: ciudad.value,
-            telefono: telefono.value,           
-            rol: rol.value
+            telefono: telefono.value,
         })
         listarUsuarios()
 
-    }catch (error){
+    } catch (error) {
         console.error('Error al editar el Usuario', error);
         Notify.create('Error al editar el Usuario')
     }
