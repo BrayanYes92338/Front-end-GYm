@@ -522,6 +522,7 @@ async function editarSeguimientoCliente() {
       cintura: cintura.value,
       imc: `${peso.value / (estatura.value * estatura.value)}`
     }
+    seguimiento.value.push(nuevoSeguimiento)
     modalInfoSeg.value = false
     await useCliente.putCliente(idSeg.value, {
       seguimiento: seguimiento.value
