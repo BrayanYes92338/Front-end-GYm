@@ -9,7 +9,7 @@ import '@quasar/extras/material-icons/material-icons.css'
 import 'quasar/src/css/index.sass'
 import App from './App.vue'
 
-axios.defaults.baseURL = "http://localhost:4500/";
+axios.defaults.baseURL = "https://root-magic-dugout.glitch.me/";
 
 let requestsPending = 0;
 
