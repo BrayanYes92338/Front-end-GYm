@@ -169,9 +169,7 @@ const columns = ref([
 ])
 
 let sedes = [];
-let datos = {};
 let clientes = [];
-let dates = {}
 const options = ref(sedes)
 const opciones = ref(clientes)
 

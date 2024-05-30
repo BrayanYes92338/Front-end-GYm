@@ -2,7 +2,10 @@
     <div>
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Venta</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarVentasActivas()" >Listar Ventas Activas</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" >Listar Ventas Inactivas</q-btn>
         </div>
+
         <div>
             <q-dialog v-model="alert" persistent>
                 <q-card class="" style="width: 700px">
@@ -53,13 +56,6 @@
                         <p style="color: red;" v-else>Inactivo</p>
                     </q-td>
                 </template>
-
-                <template v-slot:body-cell-roducto="props">
-                    <q-td :props="props">
-                        <span>{{ idProducto._id }}</span>
-                    </q-td>
-                </template>
-
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props">
                         <div style="display: flex; gap:15px; justify-content: center;">
@@ -103,11 +99,11 @@ function cerrar() {
 
 const columns = ref([
 {
-        name: 'roducto',
+        name: 'idProducto',
         required: true,
-        label: 'ID Producto',
+        label: 'Nombre Producto',
         align: 'center',
-        field: 'roducto',
+        field: (row)=>row.idProducto.nombre,
         sortable: true
     },
     {
@@ -198,6 +194,13 @@ async function listarVentas() {
     console.log(r.data.venta);
 }
 
+async function listarVentasActivas(){
+    const r = await useVenta.ListarVentasActivo()
+    rows.value = r.data.ventas.reverse()
+    console.log(r.data.ventas);
+
+}
+
 async function listarProductos() {
     const data = await useProducto.listarProductos()
     data.data.producto.forEach(item => {
@@ -273,15 +276,12 @@ async function deshabilitar(venta){
 
 function traerVentas(venta){
     id.value = venta._id
-    // idProducto.value = venta.idProducto
     valorUnitario.value = venta.valorUnitario
     cantidad.value = venta.cantidad
     accion.value = 2
     alert.value = true
-
-
     idProducto.value = {
-    label:venta.idProducto.codigo,
+    label:venta.idProducto.nombre,
     value: venta.idProducto._id
   }
 }
@@ -336,6 +336,7 @@ function limpiar() {
 onMounted(() => {
     listarVentas()
     listarProductos()
+
 })
 
 

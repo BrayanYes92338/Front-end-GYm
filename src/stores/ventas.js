@@ -26,6 +26,41 @@ export const useStoreVenta = defineStore('venta', () => {
             loading.value = false
         }
     }
+    const ListarVentasActivo = async ()=>{
+        try {
+            loading.value = true;
+            const response = await axios.get("api/ventas/activos",{
+                headers:{
+                    token: useUsuario.token
+                }
+              })
+            ventas.value = response.data;
+            return response;
+        } catch (error) {
+            console.error("Error al obtener la lista de ventas:", error);
+            throw error;
+        } finally {
+            loading.value = false
+        }
+
+    }
+    const ListarVentasInactivo = async ()=>{
+        try{
+            loading.value = true;
+            const res = await axios.get("api/ventas/inactivos", {
+                headers:{
+                    token: useUsuario.token
+                }
+            })
+            ventas.value = res.data
+            return res
+        }catch(error){
+            console.error("Error al obtener la lista de ventas Inactivos:", error);
+            throw error;
+        }finally{
+            loading.value = false
+        }
+    }
     const postVenta = async (data) => {
         try {
             loading.value = true;
@@ -112,7 +147,7 @@ export const useStoreVenta = defineStore('venta', () => {
     }
 
 
-    return { listarVentas, postVenta, putVenta, putActivarVenta, putDesactivarVenta, loading, ventas }
+    return { listarVentas,ListarVentasActivo,ListarVentasInactivo, postVenta, putVenta, putActivarVenta, putDesactivarVenta, loading, ventas }
 },
 {
     persist:true,
