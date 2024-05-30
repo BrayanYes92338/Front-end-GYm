@@ -26,6 +26,41 @@ export const useStoreCliente = defineStore('cliente', ()=>{
             loading.value= false;
         }
     };
+    const listarClientesActivos = async ()=>{
+        try{
+            loading.value = true;
+            const response =axios.get("api/clientes/activos",{
+                headers:{
+                    token:useUsuario.token
+                }
+            })
+            clientes.value = response.data;
+            return response;
+        }catch(error){
+            console.error('Error al obtener la lista la lista de Clientes', error);
+            throw error;
+        }finally{
+            loading.value= false;
+        }
+    }
+    const listarClientesInactivos = async ()=>{
+        try{
+            loading.value = true;
+            const response =axios.get("api/clientes/inactivos",{
+                headers:{
+                    token:useUsuario.token
+                }
+            })
+            clientes.value = response.data;
+            return response;
+        }catch(error){
+            console.error('Error al obtener la lista la lista de Clientes', error);
+            throw error;
+        }finally{
+            loading.value= false;
+        }
+    }
+
     const postClientes = async (data) =>{
         try{
             loading.value= true
@@ -103,7 +138,7 @@ export const useStoreCliente = defineStore('cliente', ()=>{
         }
     }
 
-    return{listarClientes,postClientes,putCliente,putactivarCliente,putdesactivarCliente, loading, clientes}
+    return{listarClientes,listarClientesActivos, listarClientesInactivos, postClientes,putCliente,putactivarCliente,putdesactivarCliente, loading, clientes}
 
 },{
     persist:true,

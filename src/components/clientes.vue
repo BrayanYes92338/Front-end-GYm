@@ -2,6 +2,8 @@
   <div>
     <div style="margin-left: 5%; text-align: end; margin-right: 5%">
       <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Cliente</q-btn>
+      <q-btn color="green" class="q-my-md q-ml-md" @click="listarClientesActivos()" >Listar Clientes Activos</q-btn>
+      <q-btn color="green" class="q-my-md q-ml-md" @click="listarClientesInactivos()" >Listar Clientes Inactivos</q-btn>
     </div>
     <div>
       <q-dialog v-model="alert" persistent>
@@ -412,6 +414,19 @@ const columns = ref([
 
 async function listarClientes() {
   const r = await useCliente.listarClientes()
+  rows.value = r.data.clientes.reverse()
+  console.log(r.data.clientes);
+}
+
+async function listarClientesActivos(){
+  const r = await useCliente.listarClientesActivos()
+  rows.value = r.data.cliente.reverse()
+  console.log(r.data.clientes);
+
+}
+
+async function listarClientesInactivos(){
+  const r = await useCliente.listarClientesInactivos()
   rows.value = r.data.clientes.reverse()
   console.log(r.data.clientes);
 }

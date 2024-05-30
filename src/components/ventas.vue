@@ -201,6 +201,7 @@ async function listarVentasActivas(){
 
 }
 
+
 async function listarProductos() {
     const data = await useProducto.listarProductos()
     data.data.producto.forEach(item => {
