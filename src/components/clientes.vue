@@ -578,12 +578,12 @@ async function habilitarCliente(cliente) {
 }
 
 async function deshabilitarCliente(cliente) {
+  console.log(cliente._id);
   const res = await useCliente.putdesactivarCliente(cliente._id)
     .then((response) => {
       listarClientes()
       console.log(response);
     })
-
     .catch((error) => {
       console.log('Error de Cliente', error);
       Notify.create("Ocurrio un error al verificar el Cliente")
