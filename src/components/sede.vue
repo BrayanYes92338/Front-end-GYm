@@ -2,6 +2,8 @@
     <div> <!--v-if="useUsuario.token"-->
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Sedes</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarSedesActivo()">Listar Sedes Activas</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarSedesInactivas()">Listar Sedes Inactivas</q-btn>
         </div>
         <div>
             <q-dialog v-model="alert" persistent>
@@ -97,6 +99,18 @@ async function listarSedes() {
     const r = await useSede.listarSedes()
     console.log(r.data.sede);
     rows.value = r.data.sede.reverse()
+}
+
+async function listarSedesActivo(){
+    const r= await useSede.listarSedesActivo()
+    rows.value = r.data.sede.reverse()
+    console.log(r.data.sede);
+}
+
+async function listarSedesInactivas(){
+    const r= await useSede.listarSedesInactivo()
+    rows.value = r.data.sede.reverse()
+    console.log(r.data.sede);
 }
 
 function traerInfo(sede) {

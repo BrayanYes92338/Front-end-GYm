@@ -11,16 +11,14 @@ export const useStoreMaquina = defineStore("maquina", () => {
     let maquinas = ref([]);
     const useUsuario = useUsuarioStore()
 
-const token = useUsuario.token
-
     const listarMaquinas = async () => {
         try {
             loading.value = true;
-            const response = await axios.get("api/maquinas",{
-                headers:{
+            const response = await axios.get("api/maquinas", {
+                headers: {
                     token: useUsuario.token
                 }
-              });
+            });
             maquinas.value = response.data;
             return response;
         } catch (error) {
@@ -31,12 +29,48 @@ const token = useUsuario.token
         }
     };
 
+    const listarMaquinasActivos = async () => {
+        try {
+            loading.value = true;
+            const response = await axios.get("api/maquinas/activos", {
+                headers: {
+                    token: useUsuario.token
+                }
+            })
+            maquinas.value = response.data;
+            return response;
+        } catch {
+            console.log("Error al obtener la lista de maquinas Activas:", error);
+            throw error;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    const listarMaquinasInactivos = async () => {
+        try {
+            loading.value = true;
+            const response = await axios.get("api/maquinas/inactivos", {
+                headers: {
+                    token: useUsuario.token
+                }
+            })
+            maquinas.value = response.data;
+            return response;
+        } catch {
+            console.log("Error al obtener la lista de maquinas Inactivos:", error);
+            throw error;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     const postMaquina = async (data) => {
         try {
             loading.value = true;
-            const r = await axios.post("api/maquinas", data,{
-                headers: { 
-                  token: useUsuario.token
+            const r = await axios.post("api/maquinas", data, {
+                headers: {
+                    token: useUsuario.token
                 }
             });
             Notify.create({
@@ -56,37 +90,37 @@ const token = useUsuario.token
         }
     };
 
-    const putMaquina = async (id,data)=>{
-        try{
-            loading.value=true
-            const r = await axios.put(`api/maquinas/${id}`, data,{
+    const putMaquina = async (id, data) => {
+        try {
+            loading.value = true
+            const r = await axios.put(`api/maquinas/${id}`, data, {
                 headers: {
-                    token:useUsuario.token
+                    token: useUsuario.token
                 }
             })
-     
+
             return r
-        }catch(error){
+        } catch (error) {
             loading.value = true
             console.log(error);
-    
-        }finally{
+
+        } finally {
             loading.value = false
-    
+
         }
     }
 
-    const putActivarMaquina = async (id)=>{
-        try{
+    const putActivarMaquina = async (id) => {
+        try {
             loading.value = true
-            const r = await axios.put(`api/maquinas/activar/${id}`,{},{
+            const r = await axios.put(`api/maquinas/activar/${id}`, {}, {
                 headers: {
-                    token:useUsuario.token
+                    token: useUsuario.token
                 }
             })
             return r
 
-        }catch(error){
+        } catch (error) {
             loading.value = true
             console.log(error)
             Notify.create({
@@ -94,22 +128,22 @@ const token = useUsuario.token
                 message: error.response.data.errors[0].msg,
             });
 
-        }finally{
+        } finally {
             loading.value = false
 
         }
     }
-    const putDesactivarMaquina = async (id)=>{
-        try{
+    const putDesactivarMaquina = async (id) => {
+        try {
             loading.value = true
-            const r = await axios.put(`api/maquinas/desactivar/${id}`,{},{
+            const r = await axios.put(`api/maquinas/desactivar/${id}`, {}, {
                 headers: {
-                    token:useUsuario.token
+                    token: useUsuario.token
                 }
             })
             return r
 
-        }catch (error){
+        } catch (error) {
             loading.value = true
             console.log(error)
             Notify.create({
@@ -117,14 +151,14 @@ const token = useUsuario.token
                 message: error.response.data.errors[0].msg,
             });
 
-        }finally{
+        } finally {
             loading.value = false
         }
     }
 
-    return { listarMaquinas, postMaquina,putActivarMaquina,putMaquina ,putDesactivarMaquina,loading, maquinas };
+    return { listarMaquinas,listarMaquinasActivos, listarMaquinasInactivos, postMaquina, putActivarMaquina, putMaquina, putDesactivarMaquina, loading, maquinas };
 },
-{
-    persist:true,
-},
+    {
+        persist: true,
+    },
 );

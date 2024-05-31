@@ -2,6 +2,8 @@
   <div>
     <div style="margin-left: 5%; text-align: end; margin-right: 5%">
       <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Maquinas</q-btn>
+      <q-btn color="green" class="q-my-md q-ml-md" @click="listarMaquinasActivas()" >Listar Maquinas Activas</q-btn>
+      <q-btn color="green" class="q-my-md q-ml-md" @click="listarMaquinasInactivas()" >Listar Maquinas Inactivas</q-btn>
     </div>
     <div>
       <q-dialog v-model="alert" persistent>
@@ -46,13 +48,6 @@
       <q-table title="Maquinas" title-class="text-red text-weight-bolder text-h4"
         table-header-class="text-black font-weight-bold" :rows="rows" :columns="columns" row-key="name"
         style="width: 90%;">
-
-        <template v-slot:body-cell-sedee="props">
-          <q-td :props="props">
-            <span>{{ props.row.idsede._id }}</span>
-          </q-td>
-        </template>
-
         <template v-slot:body-cell-estado="props">
           <q-td :props="props">
             <p style="color: green;" v-if="props.row.estado == 1">Activo</p>
@@ -61,9 +56,12 @@
         </template>
         <template v-slot:body-cell-opciones="props">
           <q-td :props="props">
-            <q-btn @click="traerinfo(props.row)">✏️</q-btn>
-            <q-btn v-if="props.row.estado == 1" @click="deshabilitarsede(props.row)">❌</q-btn>
-            <q-btn v-else @click="habilitarmaquina(props.row)">✅</q-btn>
+            <div style="display: flex; gap:15px; justify-content: center;">
+              <q-btn color="primary" @click="traerinfo(props.row)"><i class="fas fa-pencil-alt"></i></q-btn>
+              <q-btn v-if="props.row.estado == 1" @click="deshabilitarsede(props.row)" color="negative"><i
+                  class="fas fa-times"></i></q-btn>
+              <q-btn v-else @click="habilitarmaquina(props.row)" color="positive"><i class="fas fa-check"></i></q-btn>
+            </div>
           </q-td>
         </template>
       </q-table>
@@ -89,11 +87,11 @@ let id = ref('');
 
 const columns = ref([
   {
-    name: 'sedee',
+    name: 'idsede',
     required: true,
-    label: 'ID Sede',
+    label: 'Nombre Sede',
     align: 'center',
-    field: 'sedee',
+    field: (row)=>row.idsede.nombre,
     sortable: true
   },
   {
@@ -111,7 +109,7 @@ const columns = ref([
     align: 'center',
     field: 'fechaIngreso',
     sortable: true,
-    format:(val)=>{
+    format: (val) => {
       const fechaIngreso = new Date(val)
       return fechaIngreso.toLocaleDateString()
     }
@@ -123,7 +121,7 @@ const columns = ref([
     align: 'center',
     field: 'fechaUltimoMantenimiento',
     sortable: true,
-    format:(val)=>{
+    format: (val) => {
       const fechaUltimoMantenimiento = new Date(val)
       return fechaUltimoMantenimiento.toLocaleDateString()
     }
@@ -164,6 +162,19 @@ async function listarMaquinas() {
   rows.value = r.data.maquina.reverse(); ////////////
 }
 
+async function listarMaquinasActivas(){
+  const r = await useMaquina.listarMaquinasActivos()
+  rows.value = r.data.maquinas.reverse();
+  console.log(r.data.maquinas);
+}
+
+async function listarMaquinasInactivas(){
+  const r = await useMaquina.listarMaquinasInactivos()
+  rows.value = r.data.maquinas.reverse();
+  console.log(r.data.maquinas);
+}
+
+
 async function listarSedes() {
   const data = await useSede.listarSedes()
   data.data.sede.forEach(item => { // se puede lograr de esta forma directamente en el componente
@@ -179,7 +190,6 @@ async function listarSedes() {
 async function agregarMaquinas() {
   const r = await useMaquina.postMaquina({
     idsede: idsede.value.value
-
 
   })
   console.log(r);
@@ -216,30 +226,27 @@ async function deshabilitarsede(maquina) {
     })
 
 }
-function validaredicion(){
-  if(idsede.value == ""){
+function validaredicion() {
+  if (idsede.value == "") {
     Notify.create("Por favor selecciona una sede")
-  }else{
+  } else {
     editarMaquinas()
     limpiarMaquina()
     cerrar()
     Notify.create({
-            type: "positive",
-            message: "Maquina editada exitosamente",
-        });
+      type: "positive",
+      message: "Maquina editada exitosamente",
+    });
   }
 
 }
 
-
-
 async function editarMaquinas() {
   try {
-   await useMaquina.putMaquina(id.value,{
+   await useMaquina.putMaquina(id.value, {
     idsede: idsede.value.value
-
    })
-   listarMaquinas();
+    listarMaquinas();
   } catch (error) {
     console.error('Error de maquina:', error);
     Notify.create("Ocurrió un error al verificar el código de la Maquina. Por favor inténtalo de nuevo.");
@@ -249,20 +256,19 @@ async function editarMaquinas() {
 }
 
 function traerinfo(maquina) {
+  id.value = maquina._id
   accion.value = 2
   alert.value = true
   idsede.value = {
-    label:maquina.idsede.codigo,
+    label: maquina.idsede.codigo,
     value: maquina.idsede._id
   }
-  // idsede.value = maquina.idsede
-  // id.value = maquina._id
 
 }
 
 
 function abrir() {
-  accion.value =1
+  accion.value = 1
   alert.value = true;
   limpiarMaquina()
 }
