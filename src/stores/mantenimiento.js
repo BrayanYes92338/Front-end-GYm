@@ -9,6 +9,7 @@ export const useStoreMantenimiento = defineStore("mantenimiento", () =>{
     let loading = ref(false)
     let mantenimientos = ref([]);
     const useUsuario = useUsuarioStore()
+ 
     const listarMantenimientos = async ()=>{
         try{
             loading.value = true;
@@ -26,6 +27,83 @@ export const useStoreMantenimiento = defineStore("mantenimiento", () =>{
             loading.value = false;
         }
     }
+
+const listarMantenimientosActivos = async ()=>{
+
+    try{
+        loading.value = true;
+        const response = await axios.get("api/mantenimientos/activos",{
+            headers:{
+                token: useUsuario.token
+            }
+        })
+        mantenimientos.value = response.data;
+        return response;
+
+    }catch(erro){
+        console.error("Error al obtener la lista de mantenimientos activos:", error);
+        throw error;
+    }finally{
+        loading.value = false;
+    }
+
+}
+
+const listarMantenimientosInactios = async ()=>{
+    try{
+        loading.value = true;
+        const response = await axios.get("api/mantenimientos/inactivos",{
+            headers:{
+                token: useUsuario.token
+            }
+        })
+        mantenimientos.value = response.data;
+        return response;
+    }catch(error){
+        console.error("Error al obtener la lista de mantenimientos Inactivos:", error);
+        throw error;
+    }finally{
+        loading.value = false;
+    }
+}
+
+const listarValorMantenimiento = async ()=>{
+    try{
+        loading.value = true;
+        const response = await axios.get("api/mantenimientos/valorf",{
+            headers:{
+                token: useUsuario.token
+            }
+        })
+        mantenimientos.value = response.data;
+        return response;
+
+    }catch(error){
+        console.error("Error al obtener el valor de mantenimientos:", error);
+        throw error;
+    }finally{
+        loading.value = false;  
+    }
+}
+const listarMantenimientoMaquina = async (id)=>{
+   try{
+            loading.value = true;
+            const response = await axios.get(`api/mantenimientos/mantenimientoM/${id}`,{
+                headers:{
+                    token: useUsuario.token
+                }
+            })
+            mantenimientos.value = response.data;
+            return response;
+   }catch(error){
+         console.error("Error al obtener la lista de mantenimientos por maquina:", error);
+         throw error;
+   }finally{
+         loading.value = false;
+   }
+}
+
+
     const postMantenimiento = async (data)=>{
         try{
             loading.value = true
@@ -120,7 +198,7 @@ export const useStoreMantenimiento = defineStore("mantenimiento", () =>{
         }
 
     }
-    return {listarMantenimientos, postMantenimiento,putMantenimiento,putActivarMantenimiento ,putDesactivarMantenimiento, loading, mantenimientos}
+    return {listarMantenimientos,listarMantenimientosActivos,listarMantenimientosInactios,listarValorMantenimiento,listarMantenimientoMaquina, postMantenimiento,putMantenimiento,putActivarMantenimiento ,putDesactivarMantenimiento, loading, mantenimientos}
 },
 {
     persist:true,

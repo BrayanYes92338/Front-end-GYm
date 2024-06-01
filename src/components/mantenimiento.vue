@@ -2,7 +2,41 @@
     <div>
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Mantenimiento</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click=" ListarMantenimientosActivos()">Listar Mantenimiento
+                Activo</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="ListarMantenimientosInactivos()">Listar Mantenimiento
+                Inactivo</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="mostrar()" >Listar Mantenimiento Maquina</q-btn>
+
         </div>
+        <!-- Listar Mantenimiento Maquinas -->
+        <div>
+            <q-dialog v-model="alerta" persistent>
+                <q-card class="" style="width: 700px">
+                    <q-card-section style="background-color: #a1312d; margin-bottom: 20px">
+                        <div class="text-h6 text-white">Buscar Mantenimientos de Maquina</div>
+                    </q-card-section>
+                    <q-select outlined v-model="idMaquina" use-input hide-selected fill-input input-debounce="0"
+                        class="q-my-md q-mx-md" :options="options" @filter="filterFn" label="Selecciona una Maquina">
+                        <template v-slot:no-option>
+                            <q-item>
+                                <q-item-section class="text-grey">Sin resultados</q-item-section>
+                            </q-item>
+                        </template>
+                    </q-select>
+                    <q-card-actions align="right">
+                        <q-btn color="red" class="text-white" :loading="useMantenimiento.loading" @click="ListarMantenimientoMaquina()">
+                            Buscar
+                            <template v-slot:loading>
+                                <q-spinner color="primary" size="1em" />
+                            </template>
+                        </q-btn>
+                        <q-btn label="Cerrar" color="black" outline @click="cerrar2()" />
+                    </q-card-actions>
+                </q-card>
+            </q-dialog>
+        </div>
+        <!-- Agregar Mantenimientos -->
         <div>
             <q-dialog v-model="alert" persistent>
                 <q-card class="" style="width: 700px">
@@ -60,9 +94,14 @@
                 </template>
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props">
-                        <q-btn @click="traerMantenimiento(props.row)">✏️</q-btn>
-                        <q-btn v-if="props.row.estado == 1" @click="deshabilitarMantenimiento(props.row)">❌</q-btn>
-                        <q-btn v-else @click="habilitarMantenimiento(props.row)">✅</q-btn>
+                        <div style="display: flex; gap:15px; justify-content: center;">
+                            <q-btn color="primary" @click="traerMantenimiento(props.row)"><i
+                                    class="fas fa-pencil-alt"></i></q-btn>
+                            <q-btn v-if="props.row.estado == 1" @click="deshabilitarMantenimiento(props.row)"
+                                color="negative"><i class="fas fa-times"></i></q-btn>
+                            <q-btn v-else @click="habilitarMantenimiento(props.row)" color="positive"><i
+                                    class="fas fa-check"></i></q-btn>
+                        </div>
                     </q-td>
                 </template>
             </q-table>
@@ -86,6 +125,7 @@ let descripcion = ref("")
 let responsable = ref("")
 let precio = ref("")
 let alert = ref(false);
+let alerta = ref(false)
 let accion = ref(1);
 let id = ref('')
 
@@ -93,6 +133,15 @@ function abrir() {
     accion.value = 1
     alert.value = true;
     limpiar()
+}
+
+function mostrar(){
+    alerta.value = true
+
+}
+
+function cerrar2(){
+    alerta.value = false
 }
 
 function cerrar() {
@@ -103,9 +152,9 @@ const columns = ref([
     {
         name: 'idMaquina',
         required: true,
-        label: 'ID Maquina',
+        label: 'Codigo Maquina',
         align: 'center',
-        field: 'idMaquina',
+        field: (row) => row.idMaquina.codigo,
         sortable: true
     },
     {
@@ -195,6 +244,26 @@ async function listarMantenimientos() {
 
 }
 
+async function ListarMantenimientosActivos() {
+    const r = await useMantenimiento.listarMantenimientosActivos()
+    rows.value = r.data.Mantenimientos.reverse();
+    console.log(r.data.Mantenimientos);
+
+}
+
+async function ListarMantenimientosInactivos() {
+    const r = await useMantenimiento.listarMantenimientosInactios()
+    rows.value = r.data.Mantenimientos.reverse();
+    console.log(r.data.Mantenimientos);
+}
+
+async function ListarMantenimientoMaquina() {
+    const r = await useMantenimiento.listarMantenimientoMaquina(idMaquina.value.value)
+    console.log(r);
+    rows.value = r.data.mantenimientos.reverse();
+    console.log(r.data.antenimientos);
+}
+
 async function listarMaquinas() {
     const data = await useMaquina.listarMaquinas()
     data.data.maquina.forEach(item => {
@@ -257,8 +326,11 @@ async function agregarMantenimientos() {
 function traerMantenimiento(mantenimiento) {
     accion.value = 2
     alert.value = true
-idMaquina.value = mantenimiento.idMaquina;
-id.value = mantenimiento._id;
+    idMaquina.value = {
+        label: mantenimiento.idMaquina.codigo,
+        value: mantenimiento.idMaquina._id
+    };
+    id.value = mantenimiento._id;
     descripcion.value = mantenimiento.descripcion;
     responsable.value = mantenimiento.responsable;
     precio.value = mantenimiento.precio;
