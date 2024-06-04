@@ -140,6 +140,8 @@ let fechaInicio = ref('')
 let fechaFin = ref('')
 let valor = ref('')
 
+let prueba = ref('')
+
 function abrir() {
     accion.value = 1
     alert.value = true;
