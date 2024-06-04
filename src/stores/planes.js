@@ -27,6 +27,43 @@ const listarPlanes = async () => {
     }
   
 }
+const listarPlanesActivos = async ()=>{
+    try{
+        loading.value = true;
+        const response = await axios.get('api/planes/activos',{
+            headers: {
+                token: useUsuario.token
+            }
+        })
+        planes.value = response.data;
+        return response;
+
+    }catch (error){
+        console.error('Error al obtener la lista de planes activos:', error);
+        throw error;
+    }finally{
+        loading.value = false;
+    }
+}
+const listarPlanesInactivos = async() =>{
+    try{
+       loading.value = true;
+       const response = await axios.get('api/planes/inactivos',{
+              headers: {
+                token: useUsuario.token
+              }
+       })
+       planes.value = response.data;
+         return response;
+    
+    }catch (error){
+        console.error('Error al obtener la lista de planes inactivos:', error);
+        throw error;
+    }finally{
+        loading.value = false;
+    }
+
+}
 const postPlanes = async (data)=>{
     try{
         loading.value = true;
@@ -106,7 +143,7 @@ return r
     }
 }
 
-  return { listarPlanes,postPlanes,putPlanes ,putPlanesActivar,putPlanesDesactivar,loading, planes}
+  return { listarPlanes,listarPlanesActivos,listarPlanesInactivos, postPlanes,putPlanes ,putPlanesActivar,putPlanesDesactivar,loading, planes}
 },
 {
     persist:true,

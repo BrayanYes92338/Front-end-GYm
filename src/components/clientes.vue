@@ -420,15 +420,15 @@ async function listarClientes() {
 
 async function listarClientesActivos(){
   const r = await useCliente.listarClientesActivos()
-  rows.value = r.data.cliente.reverse()
-  console.log(r.data.clientes);
+  rows.value = r.data.Clientes.reverse()
+  console.log(r.data.Clientes);
 
 }
 
 async function listarClientesInactivos(){
   const r = await useCliente.listarClientesInactivos()
-  rows.value = r.data.clientes.reverse()
-  console.log(r.data.clientes);
+  rows.value = r.data.Clientes.reverse()
+  console.log(r.data.Clientes);
 }
 
 let planes = [];

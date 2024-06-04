@@ -85,23 +85,23 @@ const listarValorMantenimiento = async ()=>{
         loading.value = false;  
     }
 }
-const listarMantenimientoMaquina = async (id)=>{
-   try{
-            loading.value = true;
-            const response = await axios.get(`api/mantenimientos/mantenimientoM/${id}`,{
-                headers:{
-                    token: useUsuario.token
-                }
-            })
-            mantenimientos.value = response.data;
-            return response;
-   }catch(error){
-         console.error("Error al obtener la lista de mantenimientos por maquina:", error);
-         throw error;
-   }finally{
-         loading.value = false;
-   }
-}
+const listarMantenimientoMaquina = async (id) => {
+    try {
+      loading.value = true;
+      const response = await axios.get(`/api/mantenimientos/mantenimientoM/${id}`, {
+        headers: {
+          token: useUsuario.token
+        }
+      });
+      mantenimientos.value = response.data;
+      return response;
+    } catch (error) {
+      console.error("Error al obtener la lista de mantenimientos por maquina:", error);
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  };
 
 
     const postMantenimiento = async (data)=>{

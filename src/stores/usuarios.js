@@ -12,18 +12,56 @@ export const useUsuarioStore = defineStore("usuarios", () => {
 
     const listarUsuarios = async () => {
         try {
-            loading.value = true;
-            console.log(token.value);
-            const response = await axios.get("api/usuarios", {
+            loading.value = true
+            let res = await axios.get("api/usuarios", {
                 headers: {
                     token: token.value
                 }
-            });
-            usuarios.value = response.data;
-            return response;
+            })
+            usuarios.value = res.data;
+            return res;
 
         } catch (error) {
             console.error('Error al obtener la lista de usuarios', error);
+            throw error;
+
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const listarUsuariosActivos = async () => {
+        try {
+            loading.value = true
+            let res = await axios.get("api/usuarios/activos", {
+                headers: {
+                    token: token.value
+                }
+            })
+            usuarios.value = res.data;
+            return res;
+
+        } catch (error) {
+            console.error('Error al obtener la lista de usuarios activos', error);
+            throw error;
+
+        } finally {
+            loading.value = false
+        }
+    }
+    const listarUsuariosInactivos = async () => {
+        try {
+            loading.value = true
+            let res = await axios.get("api/usuarios/inactivos", {
+                headers: {
+                    token: token.value
+                }
+            })
+            usuarios.value = res.data;
+            return res;
+
+        } catch (error) {
+            console.error('Error al obtener la lista de usuarios inactivos', error);
             throw error;
 
         } finally {
@@ -119,7 +157,7 @@ export const useUsuarioStore = defineStore("usuarios", () => {
         }
     }
 
-    return { listarUsuarios, postUsuarios, putActivarUsuario, putUsuario, putdesactivarUsuario, login, token, loading, usuarios, user };
+    return { listarUsuarios,listarUsuariosActivos,listarUsuariosInactivos, postUsuarios, putActivarUsuario, putUsuario, putdesactivarUsuario, login, token, loading, usuarios, user };
 },
     {
         persist: true,

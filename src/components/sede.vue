@@ -51,13 +51,20 @@
                         <p style="color: red;" v-else>Inactivo</p>
                     </q-td>
                 </template>
-                <template v-slot:body-cell-opciones="props">
-                    <q-td :props="props">
-                        <q-btn @click="traerInfo(props.row)">✏️</q-btn>
-                        <q-btn v-if="props.row.estado == 1" @click="desabilitarSedes(props.row)">❌</q-btn>
-                        <q-btn v-else @click="habilitarSedes(props.row)">✅</q-btn>
-                    </q-td>
-                </template>
+     <template v-slot:body-cell-opciones="props">
+        <q-td :props="props">
+            <div style="display: flex; gap:15px; justify-content: center;">
+                <!-- boton de editar -->
+                <q-btn color="primary" @click="traerInfo(props.row)" ><i
+                        class="fas fa-pencil-alt"></i></q-btn>
+                <!-- botons de activado y desactivado -->
+                <q-btn v-if="props.row.estado == 1" @click="desabilitarSedes(props.row)" color="negative"><i
+                        class="fas fa-times"></i></q-btn>
+                <q-btn v-else @click="habilitarSedes(props.row)" color="positive"><i
+                        class="fas fa-check"></i></q-btn>
+            </div>
+        </q-td>
+    </template>
             </q-table>
         </div>
 

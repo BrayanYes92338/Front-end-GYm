@@ -2,6 +2,8 @@
     <div>
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Ingreso</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarIngresoctivo()">Listar Ingreso Activo</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click=" listarIngresoinactivo()">Listar Ingreso Inactivo</q-btn>
         </div>
         <div>
             <q-dialog v-model="alert" persistent>
@@ -116,17 +118,17 @@ const columns = ref([
     {
         name: 'idsede',
         required: true,
-        label: 'ID Sede',
+        label: 'Nombre Sede',
         align: 'center',
-        field: 'idsede',
+        field: (row) => row.idsede.nombre,
         sortable: true
     },
     {
         name: 'idcliente',
         required: true,
-        label: 'ID Cliente',
+        label: 'Nombre Cliente',
         align: 'center',
-        field: 'idcliente',
+        field: (row) => row.idcliente.nombre,
         sortable: true
     },
     {
@@ -192,6 +194,20 @@ const filtarCliente = (val, update) => {
 
 async function listarIngresos() {
     const r = await useIngreso.listarIngresos()
+    rows.value = r.data.ingresos.reverse()
+    console.log(r.data.ingresos);
+
+}
+
+async function listarIngresoctivo(){
+    const r = await useIngreso.listarIngresosActivo()
+    rows.value = r.data.ingresos.reverse()
+    console.log(r.data.ingresos);
+
+}
+
+async function listarIngresoinactivo(){
+    const r = await useIngreso.listarIngresosInactivo()
     rows.value = r.data.ingresos.reverse()
     console.log(r.data.ingresos);
 
@@ -272,8 +288,14 @@ async function deshabilitarIngreso(ingreso) {
 function traerIngreso(ingreso) {
     accion.value = 2
     alert.value = true
-    idsede.value = ingreso.idsede
-    idcliente.value = ingreso.idcliente
+    idsede.value = {
+        label:ingreso.idsede.nombre,
+        value:ingreso.idsede._id
+    }
+    idcliente.value = {
+        label:ingreso.idcliente.nombre,
+        value:ingreso.idcliente._id
+    }
     id.value = ingreso._id
 
 

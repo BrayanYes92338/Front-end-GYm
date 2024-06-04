@@ -2,6 +2,8 @@
     <div>
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Registrar Usuario</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarUsuariosActivos()">Listar Usuario Activo</q-btn>    
+             <q-btn color="green" class="q-my-md q-ml-md" @click="listarUsuariosInactivos()">Listar Usuario Inactivo</q-btn>
         </div>
 
 
@@ -189,7 +191,7 @@ const columns = ref([
     {
         name: 'idsede',
         required: true,
-        label: 'ID Sede',
+        label: 'Nombre Sede',
         align: 'center',
         field: 'idsede',
         sortable: true
@@ -302,22 +304,35 @@ function filterFn(val, update, abort) {
 };
 
 async function listarUsuarios() {
-    const r = await useUsuario.listarUsuarios();
-    rows.value = r.data.usuarios.reverse()
-    console.log(r.data.usuarios);
+const r = await useUsuario.listarUsuarios()
+rows.value = r.data.usuarios.reverse()
+console.log(r.data.usuarios);
 
 }
 
+async function listarUsuariosActivos(){
+  const r = await useUsuario.listarUsuariosActivos()
+  rows.value = r.data.usuarios.reverse()
+  console.log(r.data.usuarios);
+}
+
+async function listarUsuariosInactivos(){
+  const r = await useUsuario.listarUsuariosInactivos()
+  rows.value = r.data.usuarios.reverse()
+  console.log(r.data.usuarios);
+}
+
+
 async function listarSedes() {
-    const data = await useSede.listarSedes();
-    data.data.sede.forEach(item => {
-        dates = {
-            label: item.codigo,
-            value: item._id
-        }
-        sedes.push(dates)
-    })
-    console.log(sedes);
+  const data = await useSede.listarSedes()
+  data.data.sede.forEach(item => { 
+    dates = {
+      label: item.codigo,
+      value: item._id
+    };
+    sedes.push(dates);
+  });
+  console.log(sedes);
 }
 
 function validarUsuario() {
@@ -404,8 +419,12 @@ async function deshabilitarUsuario(usuario) {
 }
 
 function traerUsuario(usuario) {
+
     alerta.value = true
-    idsede.value = usuario.idsede
+    idsede.value = {
+        label: usuario.idsede.codigo,
+        value: usuario.idsede._id
+    }
     id.value = usuario._id
     nombre.value = usuario.nombre
     direccion.value = usuario.direccion

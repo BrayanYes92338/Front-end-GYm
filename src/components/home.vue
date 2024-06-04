@@ -85,7 +85,7 @@
 
   </div>
   <div class="btn-cerrar">
-    <button class="cerrar-sesion" @click="singOut()"> <i class="fa fa-sign-out-alt "></i> Cerrar Sesion</button>
+    <button class="cerrar-sesion"  @click="singOut()"> <i class="fa fa-sign-out-alt "></i> Cerrar Sesion</button>
   </div>
 </q-drawer>
 

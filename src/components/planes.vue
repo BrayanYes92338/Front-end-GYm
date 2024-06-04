@@ -2,6 +2,8 @@
     <div>
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Planes</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarPlanesActivos()" >Listar Planes Activos</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarPlanesInactivos()">Listar Planes Inactivos</q-btn>
         </div>
         <div>
             <q-dialog v-model="alert" persistent>
@@ -46,9 +48,16 @@
                 </template>
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props">
-                        <q-btn @click="traerPlan(props.row)">✏️</q-btn>
-                        <q-btn v-if="props.row.estado == 1" @click="deshabilitarPlanes(props.row)">❌</q-btn>
-                        <q-btn v-else @click="habilitarPlanes(props.row)">✅</q-btn>
+                        <div style="display: flex; gap:15px; justify-content: center;">
+                            <!-- boton de editar -->
+                            <q-btn color="primary" @click="traerPlan(props.row)" ><i
+                                    class="fas fa-pencil-alt"></i></q-btn>
+                            <!-- botons de activado y desactivado -->
+                            <q-btn v-if="props.row.estado == 1"  @click="deshabilitarPlanes(props.row)" color="negative"><i
+                                    class="fas fa-times"></i></q-btn>
+                            <q-btn v-else @click="habilitarPlanes(props.row)" color="positive"><i
+                                    class="fas fa-check"></i></q-btn>
+                        </div>
                     </q-td>
                 </template>
             </q-table>
@@ -143,6 +152,18 @@ async function listarPlanes() {
     const r = await usePlan.listarPlanes();
     console.log(r.data.planes);
     rows.value = r.data.planes.reverse()
+}
+
+async function listarPlanesActivos(){
+    const r = await usePlan.listarPlanesActivos();
+    rows.value = r.data.planes.reverse()
+    console.log(r.data.planes);
+}
+
+async function listarPlanesInactivos(){
+    const r = await usePlan.listarPlanesInactivos();
+    rows.value = r.data.planes.reverse()
+    console.log(r.data.planes);
 }
 
 function validarPlanes() {

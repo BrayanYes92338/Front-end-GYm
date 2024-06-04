@@ -9,6 +9,11 @@
             <q-btn color="green" class="q-my-md q-ml-md" @click="mostrar()" >Listar Mantenimiento Maquina</q-btn>
 
         </div>
+        <div style="margin-left: 5%; text-align: end; margin-right: 5%">
+            <input type="date" v-model="fechaInicio" class="q-my-md q-mx-md" />
+            <input type="date" v-model="fechaFin" class="q-my-md q-mx-md" />
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarValorMantenimiento()" >Listar Valor Mantenimientos</q-btn>
+        </div>
         <!-- Listar Mantenimiento Maquinas -->
         <div>
             <q-dialog v-model="alerta" persistent>
@@ -106,6 +111,7 @@
                 </template>
             </q-table>
         </div>
+        <h6  >El valor total de los mantenimientos es: {{valor}}</h6>
 
     </div>
 </template>
@@ -128,6 +134,9 @@ let alert = ref(false);
 let alerta = ref(false)
 let accion = ref(1);
 let id = ref('')
+let fechaInicio = ref('')
+let fechaFin = ref('')
+let valor = ref('')
 
 function abrir() {
     accion.value = 1
@@ -262,6 +271,14 @@ async function ListarMantenimientoMaquina() {
     console.log(r);
     rows.value = r.data.mantenimientos.reverse();
     console.log(r.data.antenimientos);
+}
+
+async function listarValorMantenimiento(){
+    const r = await useMantenimiento.listarValorMantenimiento(fechaInicio.value, fechaFin.value)
+    console.log(r);
+    valor.value = r.data.valor
+    console.log(r.data.valor);
+
 }
 
 async function listarMaquinas() {

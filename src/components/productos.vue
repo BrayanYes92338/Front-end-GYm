@@ -2,6 +2,8 @@
     <div>
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Productos</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarProductoActivo()">Listar Productos Activos</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarProductoInactivo()">Listar Productos Inactivos</q-btn>
         </div>
         <div>
             <q-dialog v-model="alert" persistent>
@@ -140,6 +142,20 @@ async function listarProductos() {
     const r = await useProducto.listarProductos();
     console.log(r.data.producto);
     rows.value = r.data.producto.reverse();
+}
+
+async function listarProductoActivo(){
+    const r = await useProducto.listarProductoActivo();
+    console.log(r.data.productos);
+    rows.value = r.data.productos.reverse();
+
+}
+
+async function listarProductoInactivo(){
+    const r = await useProducto.listarProductoInactivo();
+    console.log(r.data.productos);
+    rows.value = r.data.productos.reverse();
+
 }
 
 function validarProductos() {

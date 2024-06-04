@@ -19,13 +19,7 @@
                         <input type="password" v-model="passwordLogin">
                         <label for="">Contraseña</label>
                     </div>
-                    <div class="remember-forgot">
-                        <label for="remember"> <input type="checkbox" id="remember">
-                            Recuerdame
-                        </label>
-                        <a href="#">Olvidaste tu contraseña?</a>
-                    </div>
-                    <button type="submit" class=btn @click="login2()">Ingresar</button>
+                    <button  class=btn @click="login2()">Ingresar</button>
                    
                 </form>
             </div>
@@ -61,17 +55,6 @@ async function login2() {
         console.log(error);
     }
 }
-
-// async function registroLogin() {
-//     const rlogin = {
-//         nombre: nombre.value,
-//         correo: correo.value,
-//         password: password.value
-//     }
-//     datoslogin.value.push(rlogin);
-//     console.log(datoslogin.value);
-// }
-
 
 
 </script>

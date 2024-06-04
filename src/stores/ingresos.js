@@ -26,6 +26,67 @@ export const useIngresoStore = defineStore("ingreso", () => {
             loading.value = false;
         }
     }
+    const listarIngresosActivo = async ()=>{
+
+        try{
+            loading.value = true;
+            const response = await axios.get("api/ingresos/activos",{
+                headers:{
+                    token: useUsuario.token
+                }
+            })
+            ingresos.value = response.data;
+            return response;
+        }catch(error){
+            console.error("Error al obtener la lista de ingresos activos", error);
+            throw error;
+
+        }finally{
+            loading.value = false;
+        }
+    }
+
+    const listarIngresosInactivo = async ()=>{
+     try{
+        loading.value = true;
+        const response = await axios.get("api/ingresos/inactivos",{
+            headers:{
+                token: useUsuario.token
+            }
+        })
+        ingresos.value = response.data;
+        return response;
+
+        }catch(error){
+            console.error("Error al obtener la lista de ingresos inactivos", error);
+            throw error;
+
+        }finally{
+            loading.value = false;
+            
+        }
+    }
+    const listarIngresoSede = async (id)=>{
+        try{
+            loading.value = true;
+            const response = await axios.get(`api/ingresos/sede/${id}`,{
+                headers:{
+                    token: useUsuario.token
+                }
+            });
+            ingresos.value = response.data;
+            return response;
+
+        }catch(error){
+            console.error("Error al obtener la lista de ingresos por sede", error);
+            throw error;
+
+        }finally{
+            loading.value = false;
+            
+        }
+
+    }
 
     const postIngreso = async (data)=>{
         try{
@@ -102,7 +163,7 @@ export const useIngresoStore = defineStore("ingreso", () => {
         }
     }
 
-    return { listarIngresos,postIngreso,putIngreso, putactivarIngreso, putdesactivarIngreso,loading,ingresos,};
+    return { listarIngresos,listarIngresosActivo,listarIngresosInactivo,listarIngresoSede, postIngreso,putIngreso, putactivarIngreso, putdesactivarIngreso,loading,ingresos,};
 },
 {
     persist:true,
