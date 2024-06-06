@@ -114,7 +114,12 @@
             <q-table title="Usuarios" title-class="text-red text-weight-bolder text-h4"
                 table-header-class="text-black font-weight-bold" :rows="rows" :columns="columns" row-key="name"
                 style="width: 90%;">
-
+                <template v-slot:body-cell-idsede="props">
+                    <q-td :props="props">
+                        <p v-if="props.row.idsede != null">{{ props.row.idsede.nombre }}</p>
+                        <p v-else>-----</p>
+                    </q-td>
+                </template>
                 <template v-slot:body-cell-estado="props">
                     <q-td :props="props">
                         <p style="color: green;" v-if="props.row.estado == 1">Activo</p>

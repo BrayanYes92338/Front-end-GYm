@@ -41,8 +41,8 @@ const listarMantenimientosActivos = async ()=>{
         return response;
 
     }catch(erro){
-        console.error("Error al obtener la lista de mantenimientos activos:", error);
-        throw error;
+        console.error("Error al obtener la lista de mantenimientos activos:", erro);
+        throw erro;
     }finally{
         loading.value = false;
     }
@@ -67,10 +67,13 @@ const listarMantenimientosInactios = async ()=>{
     }
 }
 
-const listarValorMantenimiento = async ()=>{
+const listarValorMantenimiento = async (fechaI,fechaF)=>{
     try{
         loading.value = true;
-        const response = await axios.get("api/mantenimientos/valorf",{
+        const response = await axios.post("api/mantenimientos/valorf",{
+            fechaInicio: fechaI,
+            fechaFin: fechaF
+        },{
             headers:{
                 token: useUsuario.token
             }

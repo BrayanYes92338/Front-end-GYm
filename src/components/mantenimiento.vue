@@ -111,7 +111,7 @@
                 </template>
             </q-table>
         </div>
-        <h6  >El valor total de los mantenimientos es: {{valor}}</h6>
+        <h6 style="text-align: center;">{{valor}}</h6>
 
     </div>
 </template>
@@ -271,18 +271,22 @@ async function ListarMantenimientosInactivos() {
 }
 
 async function ListarMantenimientoMaquina() {
+    console.log(idMaquina.value.value);
     const r = await useMantenimiento.listarMantenimientoMaquina(idMaquina.value.value)
     console.log(r);
-    rows.value = r.data.mantenimientos.reverse();
-    console.log(r.data.antenimientos);
+    console.log(r.data);
+    rows.value = r.data.reverse();
 }
 
 async function listarValorMantenimiento(){
     const r = await useMantenimiento.listarValorMantenimiento(fechaInicio.value, fechaFin.value)
     console.log(r);
-    valor.value = r.data.valor
-    console.log(r.data.valor);
-
+    if(r.data.message){
+        valor.value = r.data.message
+    }else{
+    valor.value = r.data
+        
+    }
 }
 
 async function listarMaquinas() {

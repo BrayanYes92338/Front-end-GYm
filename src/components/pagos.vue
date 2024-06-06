@@ -54,7 +54,11 @@
             <q-table title="Pagos" title-class="text-red text-weight-bolder text-h4"
                 table-header-class="text-black font-weight-bold" :rows="rows" :columns="columns" row-key="name"
                 style="width: 90%;">
-
+                <template v-slot:body-cell-idCliente="props">
+                    <q-td :props="props">
+                        <p >{{ props.row.idCliente.nombre }}</p>
+                    </q-td>
+                </template>
                 <template v-slot:body-cell-estado="props">
                     <q-td :props="props">
                         <p style="color: green;" v-if="props.row.estado == 1">Activo</p>
@@ -187,7 +191,7 @@ const opciones = ref(clientes)
 const listarClientes = async () => {
     const data = await useCliente.listarClientes();
     clientes.value = data.data.clientes.map(item => ({
-        label: item.documento,
+        label: item.nombre,
         value: item._id
     }))
     opciones.value = clientes.value
@@ -275,12 +279,17 @@ async function deshabilitarPago(pago){
 }
 
 function traerPlan(plan){
+    console.log(plan);
     accion.value = 2
     alert.value = true
-    idCliente.value = plan.idCliente
-    planes.value = plan.idPlan
-    id.value = plan._id
-  
+    idPlan.value = {
+        label: plan.plan,
+        value: plan._id
+    }
+    idCliente.value = {
+        label: plan.idCliente.nombre,
+        value: plan.idCliente._id
+    }
 }
 
 

@@ -7,7 +7,7 @@
             <div class="from-box login " >
                 <img src="../img/Logo.png" alt="" class="logo1">
                 <h2>INGRESAR</h2>
-                <form action="#">
+                <q-form @submit="login2">
 
                     <div class="input-box">
                         <span class="icon"><i class="fas fa-envelope"></i></span>
@@ -19,9 +19,9 @@
                         <input type="password" v-model="passwordLogin">
                         <label for="">Contraseña</label>
                     </div>
-                    <button  class=btn @click="login2()">Ingresar</button>
+                    <button class="btn" type="submit">Ingresar</button>
                    
-                </form>
+                </q-form>
             </div>
 
         </div>
