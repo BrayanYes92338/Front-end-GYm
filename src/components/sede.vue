@@ -2,6 +2,7 @@
     <div> <!--v-if="useUsuario.token"-->
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Sedes</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarSedes()">Listar Sedes</q-btn>
             <q-btn color="green" class="q-my-md q-ml-md" @click="listarSedesActivo()">Listar Sedes Activas</q-btn>
             <q-btn color="green" class="q-my-md q-ml-md" @click="listarSedesInactivas()">Listar Sedes Inactivas</q-btn>
         </div>
@@ -18,7 +19,7 @@
                         type="text" />
                     <q-input outlined v-model="horario" label="Horario de la sede" class="q-my-md q-mx-md" type="time" />
                     <q-input outlined v-model="ciudad" label="Ciudad de la Sede" class="q-my-md q-mx-md" type="text" />
-                    <q-input outlined v-model="telefono" type="tel" label="Telefono" required pattern="[0-9]+"
+                    <q-input @keydown.space.prevent outlined v-model="telefono" type="tel" label="Telefono" required pattern="[0-9]+"
                         maxlength="10" class="q-my-md q-mx-md" />
                     <q-card-actions align="right">
                         <q-btn v-if="accion === 1" @click="validar()" color="red" class="text-white"
@@ -55,12 +56,24 @@
         <q-td :props="props">
             <div style="display: flex; gap:15px; justify-content: center;">
                 <!-- boton de editar -->
-                <q-btn color="primary" @click="traerInfo(props.row)" ><i
+                <q-btn color="primary" @click="traerInfo(props.row)" >
+                    <q-tooltip>
+                        Editar
+                    </q-tooltip>
+                    <i
                         class="fas fa-pencil-alt"></i></q-btn>
                 <!-- botons de activado y desactivado -->
-                <q-btn v-if="props.row.estado == 1" @click="desabilitarSedes(props.row)" color="negative"><i
+                <q-btn v-if="props.row.estado == 1" @click="desabilitarSedes(props.row)" color="negative">
+                    <q-tooltip>
+                        Inacticar
+                    </q-tooltip>
+                    <i
                         class="fas fa-times"></i></q-btn>
-                <q-btn v-else @click="habilitarSedes(props.row)" color="positive"><i
+                <q-btn v-else @click="habilitarSedes(props.row)" color="positive">
+                    <q-tooltip>
+                        Acticar
+                    </q-tooltip>
+                    <i
                         class="fas fa-check"></i></q-btn>
             </div>
         </q-td>
@@ -133,13 +146,13 @@ function traerInfo(sede) {
 }
 
 function validaredicion(){
-    if (nombre.value == "") {
+    if (nombre.value == "" || nombre.value.trim().length === 0) {
         Notify.create("Se debe agregar un nombre");
-    } else if (dirrecion.value == "") {
+    } else if (dirrecion.value == "" || dirrecion.value.trim().length === 0) {
         Notify.create("Se debe agregar una dirrecion");
     }  else if (horario.value == "") {
         Notify.create("Se debe agregar hora de la sede");
-    } else if (ciudad.value == "") {
+    } else if (ciudad.value == "" || ciudad.value.trim().length === 0) {
         Notify.create("Se debe agregar la ciudad de la Sede");
     } else if (telefono.value == "") {
         Notify.create("Se debe agregar un telefono");
@@ -204,13 +217,13 @@ async function desabilitarSedes(sede) {
 }
 
  function validar() {
-    if (nombre.value == "") {
+    if (nombre.value == "" || nombre.value.trim().length === 0) {
         Notify.create("Se debe agregar un nombre");
-    } else if (dirrecion.value == "") {
+    } else if (dirrecion.value == "" || dirrecion.value.trim().length === 0) {
         Notify.create("Se debe agregar una dirrecion");
     }  else if (horario.value == "") {
         Notify.create("Se debe agregar hora de la sede");
-    } else if (ciudad.value == "") {
+    } else if (ciudad.value == "" || nombre.value.trim().length === 0) {
         Notify.create("Se debe agregar la ciudad de la Sede");
     } else if (telefono.value == "") {
         Notify.create("Se debe agregar un telefono");
@@ -229,11 +242,12 @@ async function desabilitarSedes(sede) {
 }
 
 async function agregarSedes() {
+    console.log(nombre.value.trim());
     const r = await useSede.postSede({
-        nombre: nombre.value,
-        dirrecion: dirrecion.value,
-        horario: horario.value,
-        ciudad: ciudad.value,
+        nombre: nombre.value.trim(),
+        dirrecion: dirrecion.value.trim(),
+        horario: horario.value.trim(),
+        ciudad: ciudad.value.trim(),
         telefono: telefono.value
     })
     console.log(r);
@@ -291,7 +305,7 @@ const columns = ref([
     {
         name: 'horario',
         required: true,
-        label: 'Horario Sede',
+        label: 'Hora de Entrada',
         align: 'center',
         field: 'horario',
         sortable: true,

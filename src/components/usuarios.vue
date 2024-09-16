@@ -48,7 +48,7 @@
                         @click="togglePasswordVisibility" />
                 </template>
             </q-input>
-            <q-select outlined v-model="rol" :options="['ENTRENADOR', 'RECEPCIÓN']"
+            <q-select outlined v-model="rol" :options="['ENTRENADOR', 'RECEPCION']"
                 label="Seleccione el Rol del Usuario" class="q-my-md q-mx-md" />
             <q-card-actions align="right">
                 <q-btn @click="validarUsuario()" color="red" class="text-white" :loading="useUsuario.loading">
@@ -130,13 +130,26 @@
                     <q-td :props="props">
                         <div style="display: flex; gap:15px; justify-content: center;">
                             <!-- boton de editar -->
-                            <q-btn color="primary" @click="traerUsuario(props.row)"><i
-                                    class="fas fa-pencil-alt"></i></q-btn>
+                            <q-btn color="primary" @click="traerUsuario(props.row)">
+                                <q-tooltip>
+                                    Editar
+                                </q-tooltip>
+                                <i class="fas fa-pencil-alt">
+                            </i></q-btn>
                             <!-- botons de activado y desactivado -->
-                            <q-btn v-if="props.row.estado == 1" @click="deshabilitarUsuario(props.row)" color="negative"><i
-                                    class="fas fa-times"></i></q-btn>
-                            <q-btn v-else color="positive" @click="habilitarUsuaro(props.row)"><i
-                                    class="fas fa-check"></i></q-btn>
+                            <q-btn v-if="props.row.estado == 1" @click="deshabilitarUsuario(props.row)" color="negative">
+                                <q-tooltip>
+                                    Desacticar
+                                </q-tooltip>
+                                <i class="fas fa-times">
+                            </i></q-btn>
+                            <q-btn v-else color="positive" @click="habilitarUsuaro(props.row)">                                         
+                                 <q-tooltip>
+                                        Acticar
+                                </q-tooltip><i
+                                    class="fas fa-check">
+
+                                </i></q-btn>
                         </div>
                     </q-td>
                 </template>
@@ -174,7 +187,7 @@ let alerta = ref(false)
 
 function cerrar2(){
 alerta.value = false
-
+limpiar()
 }
 
 function abrir() {
@@ -274,7 +287,11 @@ const columns = ref([
         sortable: true,
         format: (val) => {
             const fechaIngreso = new Date(val)
-            return fechaIngreso.toLocaleDateString()
+            return fechaIngreso.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+            })
         }
     },
     {
@@ -329,11 +346,13 @@ async function listarUsuariosInactivos(){
 
 
 async function listarSedes() {
-  const data = await useSede.listarSedes()
+  const data = await useSede.listarSedesActivo()
   data.data.sede.forEach(item => { 
     dates = {
-      label: item.codigo,
+      label: `${item?.nombre} (${item.codigo}) `,
       value: item._id
+
+
     };
     sedes.push(dates);
   });
@@ -344,26 +363,26 @@ function validarUsuario() {
     let validacionnumeros = /^[0-9]+$/;
     let validacionCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (idsede.value == "") {
-        Notify.create("Se debe agregar un id de la Sede");
-    } else if (nombre.value == "") {
+        Notify.create("Se debe agregar una Sede");
+    } else if (nombre.value == "" || nombre.value.trim().length === 0) {
         Notify.create("Se debe agregar un nombre de Usuario");
-    } else if (direccion.value == "") {
+    }else if (direccion.value == "" || direccion.value.trim().length === 0) {
         Notify.create("Se debe agregar una direccion de Usuario");
     } else if (horario.value == "") {
         Notify.create("Se debe agregar un horario de entrada");
-    } else if (ciudad.value == "") {
+    } else if (ciudad.value == "" || ciudad.value.trim().length === 0) {
         Notify.create("Se debe agregar una ciudad");
     } else if (telefono.value == "") {
         Notify.create("Se debe agregar un telefono");
     } else if (!validacionnumeros.test(telefono.value)) {
         Notify.create("El telefono solo debe contener numeros");
 
-    } else if (correo.value == "") {
+    } else if (correo.value == "" || correo.value.trim().length === 0) {
         Notify.create("Se debe agregar un correo");
     } else if (!validacionCorreo.test(correo.value)) {
         Notify.create("Debe agregar un correo que sea valido");
 
-    } else if (password.value == "") {
+    } else if (password.value == "" || password.value.trim().length === 0) {
         Notify.create("Se debe agregar una contraseña");
     } else if (rol.value == "") {
         Notify.create("Se debe agregar un rol");
@@ -410,16 +429,22 @@ async function habilitarUsuaro(usuario) {
 }
 
 async function deshabilitarUsuario(usuario) {
-    const res = await useUsuario.putdesactivarUsuario(usuario._id)
-        .then((response) => {
-            console.log(response);
-            listarUsuarios()
-        })
 
-        .catch((error) => {
-            console.error('Error de Usuario', error);
-            Notify.create('Error al deshabilitar el Usuario')
-        })
+    if(useUsuario.user._id === usuario._id){
+        Notify.create("No puedes desactivar la cuenta en uso");
+    }else{
+        const res = await useUsuario.putdesactivarUsuario(usuario._id)
+            .then((response) => {
+                console.log(response);
+                listarUsuarios()
+            })
+    
+            .catch((error) => {
+                console.error('Error de Usuario', error);
+                Notify.create('Error al deshabilitar el Usuario')
+            })    
+    }
+
 
 }
 
@@ -443,14 +468,14 @@ function validarEdicionUsuario() {
     let validacionnumeros = /^[0-9]+$/;
    
     if (idsede.value == "") {
-        Notify.create("Se debe agregar un id de la Sede");
-    } else if (nombre.value == "") {
+        Notify.create("Se debe agregar una Sede");
+    } else if (nombre.value == "" || nombre.value.trim().length === 0) {
         Notify.create("Se debe agregar un nombre de Usuario");
-    } else if (direccion.value == "") {
+    } else if (direccion.value == "" || direccion.value.trim().length === 0) {
         Notify.create("Se debe agregar una direccion de Usuario");
     } else if (horario.value == "") {
         Notify.create("Se debe agregar un horario de entrada");
-    } else if (ciudad.value == "") {
+    } else if (ciudad.value == "" || nombre.value.trim().length === 0) {
         Notify.create("Se debe agregar una ciudad");
     } else if (telefono.value == "") {
         Notify.create("Se debe agregar un telefono");

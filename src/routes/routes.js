@@ -12,6 +12,9 @@ import Productos from '../components/productos.vue'
 import Ventas from '../components/ventas.vue'
 import Pagos from '../components/pagos.vue'
 import { useUsuarioStore } from '../stores/usuarios';
+import Menu from "../components/menu.vue"
+import Actualizar from "../components/actualizar.vue"
+import notfound from "../components/notfound.vue"
 
 
 const auth = (to, from, next) => {
@@ -41,9 +44,15 @@ const routes = [
     {
         path: "/",name:"login", component: Login
     },
+    {
+        path: "/:pathMatch(.)", // esto es para el 404
+        name: "NotFound",
+        component: notfound,
+      },
             {
         path: "/home", component: Home, children: [
-            { path: "/sede", component: Sede, beforeEnter: auth, meta: { rol: ['ADMIN'] } },
+            { path: "/menu", component: Menu },
+            { path: "/sede", component: Sede},
             { path: "/clientes", component: clientes },
             { path: "/maquina", component: Maquina },
             { path: "/mantenimiento", component: Mantenimiento },
@@ -52,7 +61,8 @@ const routes = [
             { path: "/productos", component: Productos },
             { path: "/ventas", component: Ventas },
             { path: "/pagos", component: Pagos },
-            { path: "/usuario", component: Usuario }
+            { path: "/usuario", component: Usuario },
+            { path: "/actualizar", component: Actualizar},
         ]
     },
 

@@ -2,6 +2,7 @@
     <div>
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Ingreso</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarIngresos()">Listar Ingresos</q-btn>
             <q-btn color="green" class="q-my-md q-ml-md" @click="listarIngresoctivo()">Listar Ingreso Activo</q-btn>
             <q-btn color="green" class="q-my-md q-ml-md" @click=" listarIngresoinactivo()">Listar Ingreso Inactivo</q-btn>
         </div>
@@ -25,7 +26,7 @@
                     </q-select>
 
                     <q-select outlined v-model="idcliente" use-input hide-selected fill-input input-debounce="0"
-                        class="q-my-md q-mx-md" :options="opciones" @filter="filtarCliente" label="Selecciona un Documento">
+                        class="q-my-md q-mx-md" :options="opciones" @filter="filtarCliente" label="Selecciona un Cliente">
                         <template v-slot:no-option>
                             <q-item>
                                 <q-item-section class="text-grey">
@@ -54,10 +55,17 @@
             </q-dialog>
         </div>
         <div style="display: flex; justify-content: center">
-            <q-table title="Ingresos" title-class="text-red text-weight-bolder text-h4"
+            <q-table :filter="fil" title="Ingresos" title-class="text-red text-weight-bolder text-h4"
                 table-header-class="text-black font-weight-bold" :rows="rows" :columns="columns" row-key="name"
                 style="width: 90%;">
 
+                <template v-slot:top-right>
+                 <q-input color="black" v-model="fil" placeholder="Buscar">
+                    <template v-slot:append>
+                        <q-icon name="search" />
+                    </template>
+                 </q-input>
+                </template>
 
                 <template v-slot:body-cell-estado="props">
                     <q-td :props="props">
@@ -69,12 +77,24 @@
                     <q-td :props="props">
                         <div style="display: flex; gap:15px; justify-content: center;">
                             <!-- boton de editar -->
-                            <q-btn color="primary" @click="traerIngreso(props.row)"><i
+                            <q-btn color="primary" @click="traerIngreso(props.row)">
+                                <q-tooltip>
+                                    Editar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-pencil-alt"></i></q-btn>
                             <!-- botons de activado y desactivado -->
-                            <q-btn v-if="props.row.estado == 1" @click="deshabilitarIngreso(props.row)" color="negative"><i
+                            <q-btn v-if="props.row.estado == 1" @click="deshabilitarIngreso(props.row)" color="negative">
+                                <q-tooltip>
+                                    Inactivar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-times"></i></q-btn>
-                            <q-btn v-else @click="habilitarIngreso(props.row)" color="positive"><i
+                            <q-btn v-else @click="habilitarIngreso(props.row)" color="positive">
+                                <q-tooltip>
+                                    Activar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-check"></i></q-btn>
                         </div>
                     </q-td>
@@ -141,7 +161,11 @@ const columns = ref([
         // prueba de lectura de fecha
         format: (val) => {
             const fecha = new Date(val);
-            return fecha.toLocaleDateString();
+            return fecha.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+            })
         }
     },
     {
@@ -171,22 +195,25 @@ const columns = ref([
 ])
 
 let sedes = [];
+let datesSedes = {};
 let clientes = [];
+let datesClientes = {};
 const options = ref(sedes)
 const opciones = ref(clientes)
+const fil = ref("")
 
 
 const filterFn = (val, update) => {
-    const needle = val.toLowerCase();
     update(() => {
-        options.value = sedes.value.filter(v => v.label.toLowerCase().includes(needle));
+        const needle = val.toLowerCase();
+        options.value = sedes.filter(v => v.label.toLowerCase().indexOf(needle) > -1);
     });
 };
 
 const filtarCliente = (val, update) => {
-    const needle = val.toLowerCase();
     update(() => {
-        opciones.value = clientes.value.filter(v => v.label.toLowerCase().includes(needle));
+        const needle = val.toLowerCase();
+        opciones.value = clientes.filter(v => v.label.toLowerCase().indexOf(needle) > -1);
     });
 };
 
@@ -214,30 +241,33 @@ async function listarIngresoinactivo(){
 }
 
 const listarSedes = async () => {
-    const data = await useSede.listarSedes();
-    sedes.value = data.data.sede.map(item => ({
-        label: item.codigo,
-        value: item._id
-    }));
-    options.value = sedes.value;
-    console.log('Sedes:', sedes.value);
+    const data = await useSede.listarSedesActivo();
+    data.data.sede.forEach(item => {
+        datesSedes = {
+            label: `${item?.nombre} (${item?.codigo})`,
+            value: item._id
+        }
+        sedes.push(datesSedes)
+    });
 };
 
 const listarClientes = async () => {
-    const data = await useCliente.listarClientes();
-    clientes.value = data.data.clientes.map(item => ({
-        label: item.documento,
-        value: item._id
-    }));
-    opciones.value = clientes.value;
-    console.log('Clientes:', clientes.value);
+    const data = await useCliente.listarClientesActivos();
+    console.log(data);
+    data.data.Clientes.forEach(item => {
+        datesClientes = {
+            label: `${item?.nombre} (${item?.documento})`,
+            value: item._id
+        }
+        clientes.push(datesClientes)
+    })
 };
 
 function validarIngreso() {
     if (idsede.value == "") {
-        Notify.create("Se debe agregar un id de la Sede");
+        Notify.create("Se debe agregar una Sede");
     } else if (idcliente.value == "") {
-        Notify.create("Se debe agregar un id del Cliente");
+        Notify.create("Se debe agregar un Cliente");
     } else {
         agregaringreso()
         limpiar()

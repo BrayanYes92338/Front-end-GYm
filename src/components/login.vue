@@ -4,28 +4,56 @@
             <img src="../img/fondo1.jpg" alt="Imagen de fondo">
         </div>
         <div class="wrapper">
-            <div class="from-box login " >
+            <div class="from-box login text-center" >
                 <img src="../img/Logo.png" alt="" class="logo1">
                 <h2>INGRESAR</h2>
                 <q-form @submit="login2">
 
-                    <div class="input-box">
-                        <span class="icon"><i class="fas fa-envelope"></i></span>
-                        <input type="text" v-model="email">
-                        <label for="">Correo</label>
-                    </div>
-                    <div class="input-box">
-                        <span class="icon"><i class="fas fa-lock"></i></span>
-                        <input type="password" v-model="passwordLogin">
-                        <label for="">Contraseña</label>
+                    <q-input class="q-mt-sm" outlined v-model="email" label="Correo electronico" lazy-rules
+                         :rules="[val => val && val.length > 0 || 'Porfavor ingresa tu correo']">
+                    </q-input>
+                    <q-input outlined class="q-mt-md" v-model="passwordLogin" label="Contraseña"
+                         :type="isPwd ? 'password' : 'text'" :rules="[
+                         val => val !== null && val !== '' || 'Por favor ingresa tu contraseña'
+                          ]">
+                         <template v-slot:append>
+                      <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
+                         </template>
+                     </q-input>
+                     <div class="remember-forgot">
+                        <div class="q-pa-md q-gutter-sm">
+                            <q-dialog v-model="dialog" persistent transition-show="slide-up" transition-hide="slide-down">
+                                <q-card class="custom-modal-bg" style="width: 1100px;">
+                                    <q-bar>
+                                        <q-space />
+                                        <q-btn dense flat icon="close" @click="cerrar">
+                                            <q-tooltip class="bg-white text-primary">Cerrar</q-tooltip>
+                                        </q-btn>
+                                    </q-bar>
+
+                                    <q-card-section>
+                                        <div class="text-h6">INGRESE CORREO</div>
+                                    </q-card-section>
+                                    <q-card-section class="q-pt-none">
+                                        <p>Por favor ingresar el Correo Electronico para iniciar el proceso de cambio de
+                                            contraseña.</p>
+                                        <q-input class="q-mt-sm" outlined v-model="correo" label="Correo electronico"
+                                            lazy-rules
+                                            :rules="[val => val && val.length > 0 || 'Por favor ingresa tu correo']">
+                                        </q-input>
+                                        <button class="btn" @click="usuarioPutPassword()">Enviar</button>
+                                    </q-card-section>
+                                </q-card>
+                            </q-dialog>
+                        </div>
                     </div>
                     <button class="btn" type="submit">Ingresar</button>
-                   
                 </q-form>
+                <button @click="dialog = true"><a>¿Olvidaste tu contraseña?</a></button>
             </div>
 
         </div>
-    </div>
+    </div>    
 </template>
 
 
@@ -33,10 +61,21 @@
 import { ref } from 'vue';
 import { useUsuarioStore } from '../stores/usuarios';
 import { useRouter } from "vue-router";
+import { Notify } from 'quasar';
 const router = useRouter();
 let useUsuario = useUsuarioStore()
 let email = ref("");
+let correo = ref("");
 let passwordLogin = ref("")
+let isPwd = ref(true);
+const dialog = ref(false);
+const maximizedToggle = ref(false);
+
+
+function cerrar() {
+    dialog.value = false;
+}
+
 
 
 
@@ -50,10 +89,53 @@ async function login2() {
         useUsuario.user=res.data.usuario
         console.log(res);
 
-        router.push('/home');
+        router.push('/menu');
     } catch (error) {
         console.log(error);
     }
+}
+
+async function usuarioPutPassword() {
+    try {
+        if (!correo.value) {
+            Notify.create({
+                message: "Por favor ingrese un correo",
+                position: "top",
+                color: 'red',
+                timeout: 4000
+            });
+        } else {  
+            const res = await useUsuario.usuarioGetEmail(correo.value);
+            if (res.data.usuario) {
+                const ress = await useUsuario.enviarEmail(correo.value);
+                console.log(ress);
+                
+                Notify.create({
+                    message: "El correo ha sido enviado exitosamente",
+                    position: "top",
+                    color: 'green',
+                    timeout: 4000
+                });
+                dialog.value = false;
+                limpiar();
+            } else {
+                Notify.create({
+                    message: "El correo no es válido",
+                    position: "top",
+                    color: 'red',
+                    timeout: 4000
+                });
+            }
+
+        
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+function limpiar(){
+    correo.value = "";
 }
 
 
@@ -61,14 +143,12 @@ async function login2() {
 
 <style>
 .logo1 {
-    width: 230px;
-    height: 230px;
-    margin-left: 40px;
+    width: 150px;
+    height: 150px;
 }
 
 .contenedor1 {
     display: flex;
-    justify-content: center;
     align-items: center;
     margin: 0;
     padding: 0;
@@ -76,6 +156,20 @@ async function login2() {
     background: #feffff;
 }
 
+.custom-modal-bg {
+    background-color: white;
+    color: black;
+
+}
+
+a{
+    color: #162938;
+    text-decoration: none;
+}
+.remember {
+    font-size: 15px;
+    margin-top: 18px;
+}
 
 .image-container {
     width: 80%;

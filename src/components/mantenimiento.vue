@@ -30,7 +30,8 @@
                         </template>
                     </q-select>
                     <q-card-actions align="right">
-                        <q-btn color="red" class="text-white" :loading="useMantenimiento.loading" @click="ListarMantenimientoMaquina()">
+                        <q-btn color="red" class="text-white" :loading="useMantenimiento.loading"
+                            @click="ListarMantenimientoMaquina()">
                             Buscar
                             <template v-slot:loading>
                                 <q-spinner color="primary" size="1em" />
@@ -100,18 +101,30 @@
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props">
                         <div style="display: flex; gap:15px; justify-content: center;">
-                            <q-btn color="primary" @click="traerMantenimiento(props.row)"><i
+                            <q-btn color="primary" @click="traerMantenimiento(props.row)">
+                                <q-tooltip>
+                                    Editar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-pencil-alt"></i></q-btn>
                             <q-btn v-if="props.row.estado == 1" @click="deshabilitarMantenimiento(props.row)"
-                                color="negative"><i class="fas fa-times"></i></q-btn>
-                            <q-btn v-else @click="habilitarMantenimiento(props.row)" color="positive"><i
+                                color="negative">
+                                <q-tooltip>
+                                    Inactivar
+                                </q-tooltip>
+                                <i class="fas fa-times"></i></q-btn>
+                            <q-btn v-else @click="habilitarMantenimiento(props.row)" color="positive">
+                                <q-tooltip>
+                                    Activar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-check"></i></q-btn>
                         </div>
                     </q-td>
                 </template>
             </q-table>
-        </div>
-        <h6 style="text-align: center;">{{valor}}</h6>
+            </div>
+        <h3 class="info">{{ valor }}</h3>
 
     </div>
 </template>
@@ -180,7 +193,11 @@ const columns = ref([
         // prueba de lectura de fecha
         format: (val) => {
             const fecha = new Date(val);
-            return fecha.toLocaleDateString();
+            return fecha.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+            })
         }
     },
     {
@@ -271,29 +288,48 @@ async function ListarMantenimientosInactivos() {
 }
 
 async function ListarMantenimientoMaquina() {
-    console.log(idMaquina.value.value);
-    const r = await useMantenimiento.listarMantenimientoMaquina(idMaquina.value.value)
-    console.log(r);
-    console.log(r.data);
-    rows.value = r.data.reverse();
+    try {
+        console.log(idMaquina.value.value);
+        const r = await useMantenimiento.listarMantenimientoMaquina(idMaquina.value.value)
+        console.log(r);
+        console.log(r.data);
+        rows.value = r.data.reverse();
+        Notify.create({
+            message: "Busqueda Existosa",
+            position: "top",
+            color: 'green',
+            timeout: 3000
+            })
+            cerrar2()
+    } catch (error) {
+        console.error("Error al realizar la busqueda");
+    }
 }
 
 async function listarValorMantenimiento(){
     const r = await useMantenimiento.listarValorMantenimiento(fechaInicio.value, fechaFin.value)
     console.log(r);
-    if(r.data.message){
-        valor.value = r.data.message
+    if(r.data.msg){
+        valor.value = r.data.msg
+        Notify.create({
+     message: r.data.msg,
+     position: "center",
+     color: 'red',
+     timeout: 4000
+    })
     }else{
     valor.value = r.data
-        
+    }
+    if(r.data.data){
+        rows.value = r.data.data.reverse();
     }
 }
 
 async function listarMaquinas() {
-    const data = await useMaquina.listarMaquinas()
-    data.data.maquina.forEach(item => {
+    const data = await useMaquina.listarMaquinasActivos()
+    data.data.maquinas.forEach(item => {
         dates = {
-            label: item.codigo,
+            label: `${item?.idsede.nombre} (${item?.codigo})`,
             value: item._id
         };
         maquinas.push(dates);
@@ -306,13 +342,13 @@ function validarMantenimiento() {
     let validacionnumeros = /^[0-9]+$/;
 
     if (idMaquina.value == "") {
-        Notify.create("Se debe agregar un id de la Maquina");
-    } else if (descripcion == "") {
+        Notify.create("Se debe agregar nombre Maquina");
+    } else if (descripcion == "" || descripcion.value.trim().length === 0) {
         Notify.create("Se debe agregar una descripcion del mantenimiento");
-    } else if (responsable == "") {
+    } else if (responsable == "" || responsable.value.trim().length === 0) {
         Notify.create("Se debe agregar un responsable del mantenimiento");
 
-    } else if (precio == "") {
+    } else if (precio == "" || precio.value.trim().length === 0) {
         Notify.create("Se debe agregar un precio del mantenimiento");
     } else if (!validacionnumeros.test(precio.value)) {
         Notify.create("El precio debe ser un numero");
@@ -366,9 +402,9 @@ function validarEdicionMantenimiento() {
 
     if (idMaquina.value == "") {
         Notify.create("Se debe agregar un id de la Maquina");
-    } else if (descripcion == "") {
+    } else if (descripcion == "" || descripcion.value.trim().length === 0) {
         Notify.create("Se debe agregar una descripcion del mantenimiento");
-    } else if (responsable == "") {
+    } else if (responsable == "" || responsable.value.trim().length === 0) {
         Notify.create("Se debe agregar un responsable del mantenimiento");
 
     } else if (precio == "") {
@@ -436,3 +472,13 @@ onMounted(() => {
 })
 
 </script>
+
+
+<style>
+.info{
+    text-align: center;
+    color: black;
+    font-size: 30px;
+    font-weight: bold;
+}
+</style>

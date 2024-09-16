@@ -2,6 +2,7 @@
     <div>
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Planes</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarPlanes()">Listar Planes</q-btn>
             <q-btn color="green" class="q-my-md q-ml-md" @click="listarPlanesActivos()" >Listar Planes Activos</q-btn>
             <q-btn color="green" class="q-my-md q-ml-md" @click="listarPlanesInactivos()">Listar Planes Inactivos</q-btn>
         </div>
@@ -50,12 +51,24 @@
                     <q-td :props="props">
                         <div style="display: flex; gap:15px; justify-content: center;">
                             <!-- boton de editar -->
-                            <q-btn color="primary" @click="traerPlan(props.row)" ><i
+                            <q-btn color="primary" @click="traerPlan(props.row)" >
+                                <q-tooltip>
+                                    Editar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-pencil-alt"></i></q-btn>
                             <!-- botons de activado y desactivado -->
-                            <q-btn v-if="props.row.estado == 1"  @click="deshabilitarPlanes(props.row)" color="negative"><i
+                            <q-btn v-if="props.row.estado == 1"  @click="deshabilitarPlanes(props.row)" color="negative">
+                                <q-tooltip>
+                                    Inactivar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-times"></i></q-btn>
-                            <q-btn v-else @click="habilitarPlanes(props.row)" color="positive"><i
+                            <q-btn v-else @click="habilitarPlanes(props.row)" color="positive">
+                                <q-tooltip>
+                                    Activar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-check"></i></q-btn>
                         </div>
                     </q-td>
@@ -169,11 +182,11 @@ async function listarPlanesInactivos(){
 function validarPlanes() {
     let validarnumeros = /^[0-9]+$/;
 
-    if (descripcion.value == "") {
+    if (descripcion.value == "" || descripcion.value.trim().length === 0) {
         Notify.create("Se debe agregar  descripcion del plan");
     } else if (valor.value == '') {
         Notify.create("Se debe agregar  valor del plan");
-    } else if (dias.value == '') {
+    } else if (dias.value == '' || dias.value.trim().length === 0) {
         Notify.create("Se debe agregar cantidad de dias del plan");
     } else if (!validarnumeros.test(valor.value)) {
         Notify.create("El valor del plan debe ser numerico");
@@ -232,11 +245,11 @@ async function agregarPlanes() {
 function validarEdicionPlanes() {
     let validarnumeros = /^[0-9]+$/;
 
-    if (descripcion.value == "") {
+    if (descripcion.value == "" || descripcion.value.trim().length === 0) {
         Notify.create("Se debe agregar  descripcion del plan");
     } else if (valor.value == '') {
         Notify.create("Se debe agregar  valor del plan");
-    } else if (dias.value == '') {
+    } else if (dias.value == '' || dias.value.trim().length === 0) {
         Notify.create("Se debe agregar cantidad de dias del plan");
     } else if (!validarnumeros.test(valor.value)) {
         Notify.create("El valor del plan debe ser numerico");

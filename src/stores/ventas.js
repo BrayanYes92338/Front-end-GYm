@@ -69,7 +69,14 @@ export const useStoreVenta = defineStore('venta', () => {
                     token: useUsuario.token
                 }
               })
-            return r
+              if(r.data.message){
+                Notify.create({
+                    type: "negative",
+                    message: r.data.message,
+                });
+              }else{
+                  return r
+              }
         } catch (error) {
             loading.value = true
             console.log(error);

@@ -12,7 +12,7 @@
                         </div>
                     </q-card-section>
                     <q-select outlined v-model="idCliente" use-input hide-selected fill-input input-debounce="0"
-                        class="q-my-md q-mx-md" :options="opciones" @filter="filterFn" label="Selecciona un Documento">
+                        class="q-my-md q-mx-md" :options="opciones" @filter="filterFn" label="Selecciona un Cliente">
                         <template v-slot:no-option>
                             <q-item>
                                 <q-item-section class="text-grey">
@@ -38,7 +38,7 @@
                                 <q-spinner color="primary" size="1em" />
                             </template>
                         </q-btn>
-                        <q-btn v-if="accion !== 1" color="red" class="text-white" :loading="usePago.loading">
+                        <q-btn v-if="accion !== 1" color="red" @click="editarPago()" class="text-white" :loading="usePago.loading">
                             Editar
                             <template v-slot:loading>
                                 <q-spinner color="primary" size="1em" />
@@ -69,12 +69,24 @@
                     <q-td :props="props">
                         <div style="display: flex; gap:15px; justify-content: center;">
                             <!-- boton de editar -->
-                            <q-btn color="primary" @click="traerPlan(props.row)" ><i
+                            <q-btn color="primary" @click="traerPlan(props.row)" >
+                                <q-tooltip>
+                                    Editar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-pencil-alt"></i></q-btn>
                             <!-- botons de activado y desactivado -->
-                            <q-btn v-if="props.row.estado == 1"  @click=" deshabilitarPago(props.row)" color="negative"><i
+                            <q-btn v-if="props.row.estado == 1"  @click=" deshabilitarPago(props.row)" color="negative">
+                                <q-tooltip>
+                                    Inactivar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-times"></i></q-btn>
-                            <q-btn v-else @click="habilitarPago(props.row)" color="positive"><i
+                            <q-btn v-else @click="habilitarPago(props.row)" color="positive">
+                                <q-tooltip>
+                                    Activar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-check"></i></q-btn>
                         </div>
                     </q-td>
@@ -118,7 +130,7 @@ const columns = ref([
     {
         name: 'idCliente',
         required: true,
-        label: 'ID Cliente',
+        label: 'Nombre Cliente',
         align: 'center',
         field: 'idCliente',
         sortable: true
@@ -141,7 +153,11 @@ const columns = ref([
         // prueba de lectura de fecha
         format: (val) => {
             const fecha = new Date(val);
-            return fecha.toLocaleDateString();
+            return fecha.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+            })
         }
     },
     {
@@ -184,41 +200,46 @@ async function listarPagos() {
 }
 
 let planes = []
+let datesPlanes = {};
 let clientes = []
+let datesClientes = {};
+let idpago = ref("")
 const options = ref(planes)
 const opciones = ref(clientes)
 
 const listarClientes = async () => {
     const data = await useCliente.listarClientes();
-    clientes.value = data.data.clientes.map(item => ({
-        label: item.nombre,
-        value: item._id
-    }))
-    opciones.value = clientes.value
-    console.log(`Clientes:`, clientes.value);
+    console.log(data);
+    data.data.clientes.forEach(item => {
+        datesClientes = {
+            label: `${item?.nombre} (${item?.documento})`,
+            value: item._id
+        }
+        clientes.push(datesClientes)
+    })
 }
 const listarPlanes = async () => {
-    const data = await usePlan.listarPlanes();
-    planes.value = data.data.planes.map(item => ({
-        label: item.descripcion,
-        value: item._id
-    }))
-    options.value = planes.value
-    console.log(`Planes:`, planes.value);
-
+    const data = await usePlan.listarPlanesActivos();
+    data.data.planes.forEach(item => {
+        datesPlanes = {
+            label: item.descripcion,
+            value: item._id
+        }
+        planes.push(datesPlanes)
+    })
 }
 
 function filterFn(val, update) {
     update(() => {
         const needle = val.toLowerCase();
-        return opciones.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1);
+        opciones.value = clientes.filter(v => v.label.toLowerCase().indexOf(needle) > -1);
     });
 }
 
 function filtarPlanes(val, update) {
     update(() => {
         const needle = val.toLowerCase();
-        return options.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1);
+        options.value = planes.filter(v => v.label.toLowerCase().indexOf(needle) > -1);
     });
 }
 
@@ -278,8 +299,11 @@ async function deshabilitarPago(pago){
 })
 }
 
+
+
 function traerPlan(plan){
     console.log(plan);
+    idpago.value = plan._id
     accion.value = 2
     alert.value = true
     idPlan.value = {
@@ -287,12 +311,24 @@ function traerPlan(plan){
         value: plan._id
     }
     idCliente.value = {
-        label: plan.idCliente.nombre,
+        label: `${plan.idCliente?.nombre} (${plan.idCliente?.documento})`,
         value: plan.idCliente._id
     }
 }
 
 
+async function editarPago() {
+    try {
+        await usePago.putPago(idpago.value, {
+            idCliente: idCliente.value.value,
+            idPlan: idPlan.value.value
+        })
+        cerrar()
+        listarPagos()
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 
 

@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { ref } from "vue";
+import { Notify } from "quasar";
 
 export const useUsuarioStore = defineStore("usuarios", () => {
     let token = ref("")
@@ -153,11 +154,62 @@ export const useUsuarioStore = defineStore("usuarios", () => {
             return res;
         } catch (error) {
             console.log(error);
+            if(error.response.status === 401){
+                Notify.create({
+                    message: "Usuario Inactivo",
+                    position: "top",
+                    color: 'red',
+                    timeout: 4000
+                })
+            }else{
+                Notify.create({
+                    message: "El correo o la cotraseña son incorrectas",
+                    position: "top",
+                    color: 'red',
+                    timeout: 4000
+                })
+            }
             return error;
         }
     }
 
-    return { listarUsuarios,listarUsuariosActivos,listarUsuariosInactivos, postUsuarios, putActivarUsuario, putUsuario, putdesactivarUsuario, login, token, loading, usuarios, user };
+    let usuarioGetEmail = async (correo) => {
+        try{
+            let res = await axios.get(`api/usuarios/correo/${correo}`)
+                return res;
+            
+        }catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
+    let enviarEmail = async (correo) => {
+        try{
+            console.log(correo);
+            let res = await axios.post("api/usuarios/recuperar", {
+                correo: correo
+            })
+            return res
+        }catch (error){
+            return error
+        }
+    }
+
+    let usuarioPutPassword = async (correo,password) => {
+        try {
+            let res = await axios.put("api/usuarios/actualizarpass",{
+                correo: correo,
+                password: password
+            })
+            return res 
+        } catch (error) {
+            console.log(error);
+            return error
+        }
+    }
+
+    return { listarUsuarios,listarUsuariosActivos,listarUsuariosInactivos, postUsuarios, putActivarUsuario, putUsuario, putdesactivarUsuario, login, usuarioGetEmail, enviarEmail,usuarioPutPassword , token, loading, usuarios, user };
 },
     {
         persist: true,

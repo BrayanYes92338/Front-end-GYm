@@ -2,6 +2,7 @@
     <div>
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Venta</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarVentas()">Listar Ventas</q-btn>
             <q-btn color="green" class="q-my-md q-ml-md" @click="listarVentasActivas()" >Listar Ventas Activas</q-btn>
             <q-btn color="green" class="q-my-md q-ml-md" @click="listarVentasInactivas()">Listar Ventas Inactivas</q-btn>
         </div>
@@ -47,9 +48,18 @@
             </q-dialog>
         </div>
         <div style="display: flex; justify-content: center">
-            <q-table title="Ventas" title-class="text-red text-weight-bolder text-h4"
+            <q-table :filter="fil" title="Ventas" title-class="text-red text-weight-bolder text-h4"
                 table-header-class="text-black font-weight-bold" :rows="rows" :columns="columns" row-key="name"
                 style="width: 90%;">
+
+                <template v-slot:top-right>
+                    <q-input color="black" v-model="fil" placeholder="Buscar">
+                      <template v-slot:append>
+                        <q-icon name="search" />
+                     </template>
+                    </q-input>
+                </template>
+
                 <template v-slot:body-cell-estado="props">
                     <q-td :props="props">
                         <p style="color: green;" v-if="props.row.estado == 1">Activo</p>
@@ -59,9 +69,21 @@
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props">
                         <div style="display: flex; gap:15px; justify-content: center;">
-                            <q-btn color="primary" @click="traerVentas(props.row)"><i class="fas fa-pencil-alt"></i></q-btn>
-                            <q-btn v-if="props.row.estado == 1" @click="deshabilitar(props.row)" color="negative"><i class="fas fa-times"></i></q-btn>
-                            <q-btn v-else  @click="habilitarVentas(props.row)" color="positive"><i class="fas fa-check"></i></q-btn>
+                            <q-btn color="primary" @click="traerVentas(props.row)">
+                                <q-tooltip>
+                                    Editar
+                                </q-tooltip>
+                                <i class="fas fa-pencil-alt"></i></q-btn>
+                            <q-btn v-if="props.row.estado == 1" @click="deshabilitar(props.row)" color="negative">
+                                <q-tooltip>
+                                    Inactivar
+                                </q-tooltip>
+                                <i class="fas fa-times"></i></q-btn>
+                            <q-btn v-else  @click="habilitarVentas(props.row)" color="positive">
+                                <q-tooltip>
+                                    Activar
+                                </q-tooltip>
+                                <i class="fas fa-check"></i></q-btn>
                         </div>
                     </q-td>
                 </template>
@@ -87,6 +109,7 @@ let accion = ref('')
 let idProducto = ref('')
 let valorUnitario = ref('')
 let cantidad = ref('')
+const fil = ref("")
 
 function abrir() {
     accion.value = 1
@@ -95,6 +118,7 @@ function abrir() {
 
 function cerrar() {
     alert.value = false
+    limpiar()
 }
 
 const columns = ref([
@@ -115,7 +139,11 @@ const columns = ref([
         sortable: true,
         format: (val) => {
             const fecha = new Date(val);
-            return fecha.toLocaleDateString();
+            return fecha.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+            })
         }
     },
     {
@@ -207,10 +235,10 @@ async function listarVentasInactivas(){
 }
 
 async function listarProductos() {
-    const data = await useProducto.listarProductos()
-    data.data.producto.forEach(item => {
+    const data = await useProducto.listarProductoActivo()
+    data.data.productos.forEach(item => {
         dates = {
-            label: item.codigo,
+            label: `${item.nombre} (${item.codigo})`,
             value: item._id
         }
         productos.push(dates)
@@ -218,26 +246,28 @@ async function listarProductos() {
     console.log(productos);
 }
 
-function validarVentas() {
+async function validarVentas() {
     let validarNumeros = /^[0-9]+$/;
     if (idProducto.value == "") {
-        Notify.create("Se debe agregar un ID del producto")
-    } else if (valorUnitario.value == "") {
+        Notify.create("Se debe agregar un producto")
+    } else if (valorUnitario.value == "" || valorUnitario.value.trim().length === 0) {
         Notify.create("Se debe agregar un valor unitario")
-    } else if (cantidad.value == "") {
+    } else if (cantidad.value == "" || cantidad.value.trim().length === 0) {
         Notify.create("Se debe agregar una cantidad")
     } else if (!validarNumeros.test(valorUnitario.value)) {
         Notify.create("El valor unitario debe ser un número")
     } else if (!validarNumeros.test(cantidad.value)) {
         Notify.create("La cantidad debe ser un número")
     } else {
-        agregarVentas()
-            limpiar()
-            cerrar()
-            Notify.create({
+      const r = await  agregarVentas()
+      if(r !== undefined){
+        Notify.create({
                 type: "positive",
                 message: "Venta agregada exitosamente",
             })
+      }
+            limpiar()
+            cerrar()
     }
 }
 
@@ -250,6 +280,7 @@ async function agregarVentas() {
     listarVentas()
     cerrar()
     console.log(r);
+    return r
 }
 
 async function habilitarVentas(venta){
@@ -307,24 +338,33 @@ function validarEdicionVenta(){
      editarVentas()
      cerrar()
         limpiar()
-
-            Notify.create({
-                type: "positive",
-                message: "Venta editada exitosamente",
-            })
     }
 
 }
 
 async function editarVentas(){
     try{
-        await useVenta.putVenta(id.value,{
+
+      const r =  await useVenta.putVenta(id.value,{
             idProducto: idProducto.value.value,
             valorUnitario: valorUnitario.value,
             cantidad: cantidad.value
         })
+        console.log(r);
+              if(r.data.message === "Edicion exitosa"){
+                Notify.create({
+                    type: "positive",
+                    message: "Venta editada exitosamente",
+                   
+                });
+              }else{
+            Notify.create({
+                type: "negative",
+                message: r.data.message
+            })
+              }
         listarVentas()
-
+        limpiar()
     }catch (error){
         console.log('Error al editar la venta', error);
         Notify.create("Ocurrio un error al editar la venta")
@@ -335,7 +375,6 @@ function limpiar() {
     idProducto.value = ''
     valorUnitario.value = ''
     cantidad.value = ''
-
 }
 
 onMounted(() => {

@@ -3,27 +3,27 @@
 
 <q-header class="bg-primary text-white colorheader">
   <q-toolbar>
-    <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
+    <q-btn v-if="useUsuario.token" dense flat round icon="menu" @click="toggleLeftDrawer" />
     <q-toolbar-title>
       <p class="rol-user">{{ usuario.rol }}</p>
     </q-toolbar-title>
   </q-toolbar>
 </q-header>
 
-<q-drawer v-model="leftDrawerOpen" side="left" overlay bordered class="side-bar scrolling-sidebar">
+<q-drawer v-if="useUsuario.token" v-model="leftDrawerOpen" side="left" overlay bordered class="side-bar scrolling-sidebar">
   <header class=header>
     <img src="../img/user.jpg" alt="" class="perfil-prueba">
     <p class="name-user">{{ usuario.nombre }}</p>
   </header>
   <div class="menu">
-    <div class="item"> <router-link class="item opciones" to="/home"><i class="fas fa-tachometer-alt"></i>
+    <div class="item"> <router-link class="item opciones" to="/menu"><i class="fas fa-tachometer-alt"></i>
         Home</router-link>
     </div>
-    <div class="item"> <router-link class="opciones" to="/usuario"><i class="fas fa-user"></i>Usuario</router-link>
-    <div class="item"> <router-link class="opciones" to="/sede"><i
+    <div v-if="usuario.rol ==='ADMIN'" class="item"> <router-link class="opciones" to="/usuario"><i class="fas fa-user"></i>Usuario</router-link>
+    <div v-if="usuario.rol !== 'ENTRENADOR'" class="item"> <router-link class="opciones" to="/sede"><i
           class="fas fa-map-marker-alt"></i>Sede</router-link></div>
     </div>
-    <div class="item"> <router-link class="opciones" to="/ingresos"><i
+    <div v-if="usuario.rol !== 'ENTRENADOR'" class="item"> <router-link class="opciones" to="/ingresos"><i
           class="fas fa-clipboard-check"></i>Ingresos</router-link></div>
   
     <div class="item">
@@ -37,7 +37,7 @@
               class="fas fa-user"></i>Cliente</router-link></div>
       </div>
     </div>
-    <div class="item">
+    <div v-if="usuario.rol !== 'ENTRENADOR'" class="item">
       <a class="opciones sub" href="#" @click.prevent="toggleSubMenu('mercancia')">
         <i class="fas fa-box-open"></i>Mercancia
         <i v-if="subMenus.mercancia" class="fas fa-angle-down dropdown"></i>
@@ -53,7 +53,7 @@
       </div>
 
     </div>
-    <div class="item">
+    <div v-if="usuario.rol !== 'ENTRENADOR'" class="item">
       <a class="opciones sub" href="#" @click.prevent="toggleSubMenu('suscripcion')">
         <i class="fas fa-tags"></i>Suscripción
         <i v-if="subMenus.suscripcion" class="fas fa-angle-down dropdown"></i>
@@ -69,7 +69,7 @@
       </div>
 
     </div>
-    <div class="item">
+    <div v-if="usuario.rol !== 'RECEPCION'" class="item">
       <a class="opciones" href="#" @click.prevent="toggleSubMenu('equipos')">
         <i class="fas fa-weight-hanging"></i>Equipos
         <i v-if="subMenus.equipos" class="fas fa-angle-down dropdown"></i>

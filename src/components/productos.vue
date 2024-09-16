@@ -2,6 +2,7 @@
     <div>
         <div style="margin-left: 5%; text-align: end; margin-right: 5%">
             <q-btn color="green" class="q-my-md q-ml-md" @click="abrir()">Agregar Productos</q-btn>
+            <q-btn color="green" class="q-my-md q-ml-md" @click="listarProductos()">Listar Productos</q-btn>
             <q-btn color="green" class="q-my-md q-ml-md" @click="listarProductoActivo()">Listar Productos Activos</q-btn>
             <q-btn color="green" class="q-my-md q-ml-md" @click="listarProductoInactivo()">Listar Productos Inactivos</q-btn>
         </div>
@@ -10,7 +11,7 @@
                 <q-card class="" style="width: 700px">
                     <q-card-section style="background-color: #a1312d; margin-bottom: 20px">
                         <div class="text-h6 text-white">
-                            {{ accion == 1 ? "Agregar Plan" : "Editar Plan" }}
+                            {{ accion == 1 ? "Agregar Producto" : "Editar Producto" }}
                         </div>
                     </q-card-section>
                     <q-input outlined v-model="nombre" label="Agrega un nombre al producto" class="q-my-md q-mx-md"
@@ -38,9 +39,18 @@
             </q-dialog>
         </div>
         <div style="display: flex; justify-content: center">
-            <q-table title="Productos" title-class="text-red text-weight-bolder text-h4"
+            <q-table :filter="fil" title="Productos" title-class="text-red text-weight-bolder text-h4"
                 table-header-class="text-black font-weight-bold" :rows="rows" :columns="columns" row-key="name"
                 style="width: 90%;">
+
+                <template v-slot:top-right>
+                  <q-input color="black" v-model="fil" placeholder="Buscar">
+                    <template v-slot:append>
+                        <q-icon name="search" />
+                    </template>
+                  </q-input>
+                 </template>
+
                 <template v-slot:body-cell-estado="props">
                     <q-td :props="props">
                         <p style="color: green;" v-if="props.row.estado == 1">Activo</p>
@@ -51,11 +61,23 @@
                     <q-td :props="props">
                         <div style="display: flex; gap:15px; justify-content: center;">
                             <!-- boton de editar -->
-                            <q-btn color="primary" @click="traerProducto(props.row)" ><i class="fas fa-pencil-alt"></i></q-btn>
+                            <q-btn color="primary" @click="traerProducto(props.row)" >
+                                <q-tooltip>
+                                    Editar
+                                </q-tooltip>
+                                <i class="fas fa-pencil-alt"></i></q-btn>
                             <!-- botons de activado y desactivado -->
                             <q-btn v-if="props.row.estado == 1" @click="deshabilitarProductos(props.row)"
-                                color="negative"><i class="fas fa-times"></i></q-btn>
-                            <q-btn v-else @click="habilitarProductos(props.row)" color="positive"><i
+                                color="negative">
+                                <q-tooltip>
+                                    Inactivar
+                                </q-tooltip>
+                                <i class="fas fa-times"></i></q-btn>
+                            <q-btn v-else @click="habilitarProductos(props.row)" color="positive">
+                                <q-tooltip>
+                                    Activar
+                                </q-tooltip>
+                                <i
                                     class="fas fa-check"></i></q-btn>
                         </div>
                     </q-td>
@@ -78,6 +100,7 @@ let id = ref('');
 let nombre = ref('')
 let valor = ref('')
 let cantidad = ref('')
+const fil = ref("")
 
 const columns = ref([
     {
@@ -160,7 +183,7 @@ async function listarProductoInactivo(){
 
 function validarProductos() {
     let validarnumeros = /^[0-9]+$/;
-    if (nombre.value == "") {
+    if (nombre.value == "" || nombre.value.trim().length === 0) {
         Notify.create("Se debe agregar agregar el nombre del producto");
     } else if (valor.value == "") {
         Notify.create("Se debe agregar agregar el valor del producto");
@@ -239,9 +262,9 @@ function traerProducto(producto){
 
 function validarEdicionProductos(){
     let validarnumeros = /^[0-9]+$/;
-    if (nombre.value == "") {
+    if (nombre.value == "" || nombre.value.trim().length === 0) {
         Notify.create("Se debe agregar agregar el nombre del producto");
-    } else if (valor.value == "") {
+    } else if (valor.value == "" ) {
         Notify.create("Se debe agregar agregar el valor del producto");
     } else if (!validarnumeros.test(valor.value)) {
         Notify.create("El valor del producto debe ser numerico");

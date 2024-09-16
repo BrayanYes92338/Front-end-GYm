@@ -11,10 +11,11 @@
   "dependencies": {
     "@quasar/extras": "^1.16.11",
     "axios": "^1.6.8",
+    "floating-vue": "^5.2.2",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "quasar": "^2.15.2",
-    "sweetalert2": "^11.10.7",
+    "sweetalert2": "^11.6.13",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },
